@@ -1,0 +1,26 @@
+<svg width="900" height="600" viewBox="0 0 900 600" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Laporan Isu Strategis Mei 2026</title>
+  <desc id="desc">Infografis isu strategis dengan ringkasan prioritas kebijakan</desc>
+  <rect width="900" height="600" rx="48" fill="#F8FBFF"/>
+  <rect x="36" y="36" width="828" height="528" rx="36" fill="#EEF4FF"/>
+  <circle cx="730" cy="120" r="90" fill="#D5E7FF"/>
+  <path d="M120 470C200 340 300 300 420 300C540 300 640 320 760 420" stroke="#1F9EB0" stroke-width="22" stroke-linecap="round"/>
+  <rect x="88" y="110" width="240" height="110" rx="28" fill="#1F9EB0"/>
+  <text x="118" y="160" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700">ISU</text>
+  <text x="118" y="204" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700">STRATEGIS</text>
+  <rect x="378" y="116" width="420" height="286" rx="34" fill="#FFFFFF"/>
+  <path d="M420 344C479 232 584 190 682 190C732 190 779 200 820 220" stroke="#2ECC71" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="485" cy="250" r="54" fill="#E8F8F1"/>
+  <path d="M485 214L510 239L561 188" stroke="#2ECC71" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420" y="410" fill="#1F2937" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">10 Turbulensi Kebijakan</text>
+  <text x="420" y="456" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="28">Prioritas 2026</text>
+  <rect x="88" y="260" width="200" height="132" rx="26" fill="#FFFFFF"/>
+  <text x="120" y="315" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">PAD</text>
+  <text x="120" y="353" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="22">+14.8%</text>
+  <rect x="308" y="260" width="200" height="132" rx="26" fill="#FFFFFF"/>
+  <text x="340" y="315" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">Infra</text>
+  <text x="340" y="353" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="22">Prioritas</text>
+  <rect x="528" y="260" width="276" height="132" rx="26" fill="#FFFFFF"/>
+  <text x="560" y="315" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">Sentimen</text>
+  <text x="560" y="353" fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="22">Monitoring Aktif</text>
+</svg>

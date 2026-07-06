@@ -1,0 +1,21 @@
+<svg width="900" height="600" viewBox="0 0 900 600" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Policy Brief 10 Isu Strategis 1</title>
+  <desc id="desc">Policy brief tentang isu strategis dan sentimen publik</desc>
+  <rect width="900" height="600" rx="48" fill="#F5F8FF"/>
+  <rect x="54" y="52" width="792" height="496" rx="44" fill="#FFFFFF"/>
+  <path d="M120 160C185 110 255 88 320 88C458 88 551 188 662 188C737 188 788 157 810 124" stroke="#4F46E5" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="240" cy="212" r="100" fill="#EEF2FF"/>
+  <circle cx="240" cy="212" r="62" fill="#4F46E5"/>
+  <path d="M210 212L232 234L285 182" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="390" y="170" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700">Policy Brief</text>
+  <text x="390" y="228" fill="#6B7280" font-family="Arial, Helvetica, sans-serif" font-size="28">10 Isu Strategis</text>
+  <rect x="110" y="330" width="280" height="120" rx="24" fill="#F59E0B"/>
+  <path d="M150 390H300" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/>
+  <path d="M170 425H280" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" opacity="0.7"/>
+  <rect x="430" y="320" width="330" height="150" rx="28" fill="#E0F2FE"/>
+  <circle cx="520" cy="392" r="52" fill="#0EA5E9"/>
+  <path d="M500 392H540" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M520 372V412" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <text x="600" y="372" fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">Sentimen</text>
+  <text x="600" y="418" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="24">Netral Positif</text>
+</svg>

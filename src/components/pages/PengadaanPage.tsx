@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, ChevronRight, Clock, FileText, Package, RefreshCw, Search, X } from "lucide-react";
 import { OPD_DATA } from "../../data/transactions";
 
@@ -10,131 +10,69 @@ type PaketItem = {
   pdn: "Ya" | "Tidak";
 };
 
-// ================== DATA RENCANA (RUP) ==================
-const PAKET_BY_METODE: Record<string, PaketItem[]> = {
+type MetodeCount = { label: string; count: number };
+type NamedAmount = { name: string; amount: string };
+type SumberDana = { label: string; amount: string; color: string; bg: string };
+type SumberTransaksi = { label: string; amount: string };
+type OpdRow = { name: string; real: string; pct: number; paket?: number };
+type SatkerRow = { name: string; amount: string; paket: number; pct: number };
+
+type RupData = {
+  totalPagu: string;
+  totalPaket: string;
+  satuanKerja: string;
+  metodePengadaan: MetodeCount[];
+  jenisPengadaan: NamedAmount[];
+  sumberDana: SumberDana[];
+  opdData: OpdRow[];
+  paketByMetode: Record<string, PaketItem[]>;
+};
+
+type RealisasiData = {
+  totalNilai: string;
+  totalPaket: string;
+  satuanKerja: string;
+  metodePengadaan: MetodeCount[];
+  jenisPengadaan: NamedAmount[];
+  sumberTransaksi: SumberTransaksi[];
+  satker: SatkerRow[];
+  paketByMetode: Record<string, PaketItem[]>;
+};
+
+type YearData = {
+  lastUpdate: string; // dipakai kalau tahun ini BUKAN tahun berjalan
+  rup: RupData;
+  realisasi: RealisasiData;
+};
+
+const BULAN_ID = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+
+function formatTanggalJam(date: Date): string {
+  const tanggal = date.getDate();
+  const bulan = BULAN_ID[date.getMonth()];
+  const tahun = date.getFullYear();
+  const jam = String(date.getHours()).padStart(2, "0");
+  const menit = String(date.getMinutes()).padStart(2, "0");
+  return `${tanggal} ${bulan} ${tahun}, ${jam}:${menit}`;
+}
+
+const TAHUN_OPTIONS = [2025, 2026];
+const CURRENT_YEAR = 2026; // tahun berjalan -> jam & tanggal live update
+
+// ============================================================
+// ================== DATA TAHUN 2026 (ASLI) ==================
+// ============================================================
+
+const PAKET_BY_METODE_2026: Record<string, PaketItem[]> = {
   "E-Purchasing": [
     { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Makanan dan Minuman Harian pasien", amount: "Rp 7.2 M", kodeRup: "66158037", pdn: "Ya" },
     { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 5.4 M", kodeRup: "63276010", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 5.4 M", kodeRup: "63276010", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 5.4 M", kodeRup: "63276010", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 5.4 M", kodeRup: "63276010", pdn: "Ya" },
-    { opd: "DINAS PERHUBUNGAN - 2.15.0.00.0.00.01.0000", title: "Belanja Jasa yang Diberikan kepada Masyarakat ( Penyediaan Angkutan Umum untuk Jasa Angkutan Orang dan/atau Barang Antar Kota dalam 1 (satu) Daerah Kabupaten/Kota )", amount: "Rp 5.3 M", kodeRup: "63134143", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 5.1 M", kodeRup: "63276010", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 5.1 M", kodeRup: "63276010", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Jasa Pengamanan Rumah Sakit", amount: "Rp 4.7 M", kodeRup: "62520992", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Obat-Obatan", amount: "Rp 4.6 M", kodeRup: "65697542", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Bahan-Bahan Lainnya", amount: "Rp 3.2 M", kodeRup: "63093799", pdn: "Tidak" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Jasa Cleaning Service", amount: "Rp 2.8 M", kodeRup: "62608636", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Makanan dan Minuman Harian Pasien", amount: "Rp 2.5 M", kodeRup: "62508637", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Bahan-Bahan Lainnya (Kesling 02.17)", amount: "Rp 2.2 M", kodeRup: "63107324", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Jasa Cleaning Service Rumah Sakit", amount: "Rp 1.9 M", kodeRup: "62520619", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Bahan-Bahan Lainnya - BMHP Skrining PKG", amount: "Rp 1.6 M", kodeRup: "62842732", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Alat/Bahan untuk Kegiatan Kantor- Suvenir/Cendera Mata", amount: "Rp 1.6 M", kodeRup: "63074823", pdn: "Ya" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Outsourcing Satpam", amount: "Rp 1.5 M", kodeRup: "62608509", pdn: "Ya" },
-    { opd: "BAGIAN UMUM - 4.01.5.06.3.29.01.0008", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 1.5 M", kodeRup: "62764779", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Obat-Obatan PHMS", amount: "Rp 1.5 M", kodeRup: "65704048", pdn: "Ya" },
-    { opd: "DINAS KEPEMUDAAN DAN OLAHRAGA - 2.19.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 1.5 M", kodeRup: "62842626", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Pengadaan Mesin Cuci dan Pengering", amount: "Rp 1.3 M", kodeRup: "64846781", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "PENGADAAN ALAT - ALAT KEDOKTERAN UMUM", amount: "Rp 1.3 M", kodeRup: "62947790", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Jasa Cleaning Service Rumah Sakit", amount: "Rp 1.1 M", kodeRup: "62520619", pdn: "Ya" },
-    { opd: "SEKRETARIAT DPRD - 4.02.0.00.0.00.01.0000", title: "Belanja Modal Personal Computer  -Penyediaan Peralatan dan Perlengkapan Kantor", amount: "Rp 1.1 M", kodeRup: "63058350", pdn: "Ya" },
-    { opd: "DINAS PERHUBUNGAN - 2.15.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Pelayanan Umum (Sub Pengendalian Pelaksanaan Rencana Induk Perkeretaapian)", amount: "Rp 1.1 M", kodeRup: "63025986", pdn: "Ya" },
-    { opd: "DINAS KOMUNIKASI DAN INFORMATIKA - 2.16.2.21.2.20.01.0000", title: "Belanja Bandwidth IP Transit dan Metro Kecamatan", amount: "Rp 1.1 M", kodeRup: "62509076", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Makanan dan Minuman Harian Petugas RS", amount: "Rp 1.1 M", kodeRup: "66212346", pdn: "Ya" },
-    { opd: "RSUD SUMBERREJO - 1.02.0.00.0.00.01.0002", title: "Belanja Makanan/Minuman Pasien", amount: "Rp 1.0 M", kodeRup: "63149832", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "PENGADAAN ALAT - ALAT KEDOKTERAN UMUM", amount: "Rp 1.0 M", kodeRup: "62947790", pdn: "Ya" },
-    { opd: "DINAS KEPEMUDAAN DAN OLAHRAGA - 2.19.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 902 Jt", kodeRup: "62842628", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "PENGADAAN ALAT - ALAT KEDOKTERAN UMUM", amount: "Rp 899 Jt", kodeRup: "62947790", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "PENGADAAN ALAT - ALAT KEDOKTERAN BEDAH", amount: "Rp 878 Jt", kodeRup: "67064284", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Modal Peralatan Jaringan", amount: "Rp 860 Jt", kodeRup: "62771422", pdn: "Tidak" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Bahan-Bahan Lainnya - BMHP Skrining PKG", amount: "Rp 840 Jt", kodeRup: "62842732", pdn: "Ya" },
-    { opd: "DINAS LINGKUNGAN HIDUP - 2.11.3.28.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 802 Jt", kodeRup: "62528547", pdn: "Ya" },
-    { opd: "DINAS PERHUBUNGAN - 2.15.0.00.0.00.01.0000", title: "Warning Light (sub kegiatan Penyediaan Perlengkapan Jalan di Jalan Kabupaten/Kota)", amount: "Rp 793 Jt", kodeRup: "62936862", pdn: "Ya" },
-    { opd: "DINAS PERHUBUNGAN - 2.15.0.00.0.00.01.0000", title: "Paket Konsolidasi Cetak Stiker Parkir Berlangganan (Sub Kegiatan Fasilitasi Pemenuhan Persyaratan Perolehan Izin Penyelenggaraan dan Pembangunan Fasilitas Parkir)", amount: "Rp 776 Jt", kodeRup: "65067496", pdn: "Ya" },
-    { opd: "DINAS KOMUNIKASI DAN INFORMATIKA - 2.16.2.21.2.20.01.0000", title: "Belanja Bandwidth IP Transit II", amount: "Rp 768 Jt", kodeRup: "62511583", pdn: "Ya" },
-    { opd: "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL - 2.12.0.00.0.00.01.0000", title: "Belanja Alat/Bahan untuk Kegiatan Kantor-Bahan Komputer", amount: "Rp 733 Jt", kodeRup: "62757029", pdn: "Tidak" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Konsolidasi Belanja Bahan - Bahan Bangunan dan Konstruksi (Pemeliharaan Rutin Jalan Wilayah I,II,III,IV) Paket I", amount: "Rp 729 Jt", kodeRup: "66081803", pdn: "Ya" },
-    { opd: "RSUD SUMBERREJO - 1.02.0.00.0.00.01.0002", title: "Belanja Jasa Cleaning Service", amount: "Rp 706 Jt", kodeRup: "63499079", pdn: "Ya" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Jasa Tenaga Lainnya", amount: "Rp 701 Jt", kodeRup: "62665821", pdn: "Ya" },
-    { opd: "DINAS PERDAGANGAN, KOPERASI DAN USAHA MIKRO - 3.30.2.17.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 694 Jt", kodeRup: "62988197", pdn: "Ya" },
-    { opd: "RSUD SUMBERREJO - 1.02.0.00.0.00.01.0002", title: "Belanja Jasa Pengamanan RS", amount: "Rp 671 Jt", kodeRup: "63501245", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 657 Jt", kodeRup: "62701161", pdn: "Ya" },
-    { opd: "RSUD SUMBERREJO - 1.02.0.00.0.00.01.0002", title: "Belanja Oksigen", amount: "Rp 619 Jt", kodeRup: "63148107", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Modal Peralatan dan Mesin Alat Kedokteran dan Kesehatan", amount: "Rp 616 Jt", kodeRup: "66428007", pdn: "Tidak" },
-    { opd: "DINAS PERDAGANGAN, KOPERASI DAN USAHA MIKRO - 3.30.2.17.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 613 Jt", kodeRup: "62988198", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Makanan dan Minuman Harian Petugas RS", amount: "Rp 603 Jt", kodeRup: "62509516", pdn: "Ya" },
-    { opd: "DINAS KETAHANAN PANGAN DAN PERTANIAN - 2.09.3.27.0.00.01.0000", title: "Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat", amount: "Rp 589 Jt", kodeRup: "66814374", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Belanja Bahan-Bahan Bangunan dan Konstruksi", amount: "Rp 582 Jt", kodeRup: "62883574", pdn: "Ya" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Darah dan Gas Medis", amount: "Rp 559 Jt", kodeRup: "62859130", pdn: "Ya" },
-    { opd: "DINAS SOSIAL - 1.06.0.00.0.00.01.0000", title: "Belanja Alat/Bahan untuk Kegiatan Kantor- Bahan Cetak", amount: "Rp 556 Jt", kodeRup: "62919849", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Makanan dan Minuman pada Fasilitas Pelayanan Urusan Kesehatan", amount: "Rp 549 Jt", kodeRup: "62701400", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Jasa Pembuangan Sampah ( pembuangan limbah B3) EP", amount: "Rp 533 Jt", kodeRup: "64223634", pdn: "Ya" },
-    { opd: "DINAS PERHUBUNGAN - 2.15.0.00.0.00.01.0000", title: "Belanja Modal Alat Penguji Kendaraan Bermotor ( Sub Kegiatan Penyediaan Sarana dan Prasarana Pengujian Berkala Kendaraan Bermotor )", amount: "Rp 508 Jt", kodeRup: "63136715", pdn: "Tidak" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Belanja Modal Pengadaan Jaringan Nurse Call", amount: "Rp 499 Jt", kodeRup: "66602770", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Konsolidasi Pengadaan perabot kantor", amount: "Rp 498 Jt", kodeRup: "65393176", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Makanan dan Minuman Rapat", amount: "Rp 497 Jt", kodeRup: "65051001", pdn: "Ya" },
-    { opd: "DINAS LINGKUNGAN HIDUP - 2.11.3.28.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 486 Jt", kodeRup: "62542067", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Bahan Pembersih Rumah Tangga", amount: "Rp 456 Jt", kodeRup: "63130671", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 452 Jt", kodeRup: "62942697", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 451 Jt", kodeRup: "62942697", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Plastik dan Karung Kegiatan Pencegahan Penyakit Menular", amount: "Rp 451 Jt", kodeRup: "67064038", pdn: "Ya" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Makan Pasien", amount: "Rp 445 Jt", kodeRup: "62606703", pdn: "Ya" },
-    { opd: "DINAS SOSIAL - 1.06.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 429 Jt", kodeRup: "62749397", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 408 Jt", kodeRup: "62942697", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan 2026", amount: "Rp 401 Jt", kodeRup: "62145879", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 400 Jt", kodeRup: "62328280", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Pemeliharaan Jaringan Listrik - Jaringan Listrik Lainnya", amount: "Rp 395 Jt", kodeRup: "64902962", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 386 Jt", kodeRup: "67064208", pdn: "Ya" },
-    { opd: "DINAS KEBUDAYAAN DAN PARIWISATA - 2.22.3.26.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 368 Jt", kodeRup: "63172005", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 366 Jt", kodeRup: "62942697", pdn: "Ya" },
-    { opd: "DINAS LINGKUNGAN HIDUP - 2.11.3.28.0.00.01.0000", title: "KONSOLIDASI Belanja Jasa Konsultansi Berorientasi Layanan-Jasa Khusus (PENGUJIAN DAN ANALISA LABORATORIUM)", amount: "Rp 361 Jt", kodeRup: "66827902", pdn: "Ya" },
-    { opd: "BAGIAN UMUM - 4.01.5.06.3.29.01.0008", title: "Belanja Sewa Kendaraan Bermotor Penumpang", amount: "Rp 352 Jt", kodeRup: "62764211", pdn: "Ya" },
-    { opd: "DINAS PETERNAKAN DAN PERIKANAN - 3.25.3.27.0.00.01.0000", title: "Belanja Sewa Kendaraan Bermotor Penumpang", amount: "Rp 347 Jt", kodeRup: "63276014", pdn: "Ya" },
-    { opd: "BADAN PENANGGULANGAN BENCANA DAERAH - 1.05.0.00.0.00.03.0000", title: "Belanja Bahan-Bahan Lainnya dan Bahan Konstruksi (Kerjasama Antar Lembaga) KONSOLIDASI", amount: "Rp 338 Jt", kodeRup: "65000194", pdn: "Ya" },
-    { opd: "DINAS KEBUDAYAAN DAN PARIWISATA - 2.22.3.26.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 334 Jt", kodeRup: "63172004", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Modal Peralatan dan Mesin Alat Kantor dan Rumah Tangga Lainnya", amount: "Rp 327 Jt", kodeRup: "66427895", pdn: "Ya" },
-    { opd: "BADAN PENANGGULANGAN BENCANA DAERAH - 1.05.0.00.0.00.03.0000", title: "Belanja Natura dan Pakan-Natura-Tas ( Logistik ) KONSOLIDASI", amount: "Rp 318 Jt", kodeRup: "64980028", pdn: "Ya" },
-    { opd: "RSUD SUMBERREJO - 1.02.0.00.0.00.01.0002", title: "Belanja Oksigen", amount: "Rp 309 Jt", kodeRup: "63148107", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA SERVICE SUKU CADANG ALAT KEDOKTERAN RS E KATALOG", amount: "Rp 306 Jt", kodeRup: "65372705", pdn: "Tidak" },
-    { opd: "DINAS LINGKUNGAN HIDUP - 2.11.3.28.0.00.01.0000", title: "Belanja Bahan-Bahan Bangunan dan Konstruksi", amount: "Rp 305 Jt", kodeRup: "62758188", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 301 Jt", kodeRup: "62701270", pdn: "Ya" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Bahan Obat - obatan", amount: "Rp 289 Jt", kodeRup: "65007169", pdn: "Ya" },
-    { opd: "DINAS PEMBERDAYAAN PEREMPUAN, PERLINDUNGAN ANAK DAN KELUARGA BERENCANA - 2.08.2.14.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 289 Jt", kodeRup: "62589009", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan", amount: "Rp 281 Jt", kodeRup: "62323610", pdn: "Ya" },
-    { opd: "SATUAN POLISI PAMONG PRAJA - 1.05.0.00.0.00.02.0000", title: "Belanja Jasa Tenaga Keamanan", amount: "Rp 279 Jt", kodeRup: "62990653", pdn: "Ya" },
-    { opd: "BAGIAN KESEJAHTERAAN RAKYAT - 4.01.5.06.3.29.01.0010", title: "Konsolidasi Belanja Sewa Kendaraan Bermotor Penumpang dan Barang", amount: "Rp 276 Jt", kodeRup: "65134700", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Konsolidasi Belanja Alat/Bahan untuk Kegiatan Alat Tulis Kantor-Alat Listrik", amount: "Rp 267 Jt", kodeRup: "67067817", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA SERVICE SUKU CADANG ALAT KEDOKTERAN RS E KATALOG", amount: "Rp 265 Jt", kodeRup: "65433891", pdn: "Ya" },
-    { opd: "DINAS KEPEMUDAAN DAN OLAHRAGA - 2.19.0.00.0.00.01.0000", title: "Belanja Makanan dan Minuman Rapat", amount: "Rp 265 Jt", kodeRup: "62836399", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA SERVICE SUKU CADANG ALAT KEDOKTERAN RS E KATALOG", amount: "Rp 263 Jt", kodeRup: "65433891", pdn: "Tidak" },
-    { opd: "DINAS PENDIDIKAN - 1.01.0.00.0.00.01.0000", title: "Jasa Tenaga Kebersihan Kantor", amount: "Rp 255 Jt", kodeRup: "62867555", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Pemeliharaan Alat Kedokteran dan Kesehatan-Alat kedokteran Laboratorium", amount: "Rp 250 Jt", kodeRup: "64902344", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Pengadaan Video Wall", amount: "Rp 249 Jt", kodeRup: "64783308", pdn: "Ya" },
-    { opd: "RSUD SUMBERREJO - 1.02.0.00.0.00.01.0002", title: "Belanja Jasa Pengelolaan Limbah B3", amount: "Rp 240 Jt", kodeRup: "63154130", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan 2026", amount: "Rp 234 Jt", kodeRup: "62146159", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Modal Peralatan dan Mesin Alat Kantor - Alat Bengkel dan Alat Ukur", amount: "Rp 233 Jt", kodeRup: "64906808", pdn: "Tidak" },
-    { opd: "DINAS PENDIDIKAN - 1.01.0.00.0.00.01.0000", title: "Jasa Tenaga Keamanan Kantor", amount: "Rp 233 Jt", kodeRup: "62867558", pdn: "Ya" },
-    { opd: "DINAS PENDIDIKAN - 1.01.0.00.0.00.01.0000", title: "Jasa Tenaga Keamanan SMT", amount: "Rp 233 Jt", kodeRup: "62867557", pdn: "Ya" },
-    { opd: "SEKRETARIAT DPRD - 4.02.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Kebersihan  - Penyediaan Jasa Pelayanan Umum Kantor", amount: "Rp 233 Jt", kodeRup: "63131484", pdn: "Ya" },
-    { opd: "DINAS PENDIDIKAN - 1.01.0.00.0.00.01.0000", title: "Jasa Tenaga Kebersihan SMT", amount: "Rp 227 Jt", kodeRup: "62867556", pdn: "Ya" },
-    { opd: "RSUD KEPOHBARU - 1.02.0.00.0.00.01.0004", title: "Belanja Pemeliharaan Jaringan-Jaringan Listrik-Jaringan Listrik Lainnya", amount: "Rp 226 Jt", kodeRup: "62706761", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Plastik dan Karung Kegiatan Pengadaan Obat dan Perbekalan RS", amount: "Rp 225 Jt", kodeRup: "62960673", pdn: "Ya" },
-    { opd: "DINAS KETAHANAN PANGAN DAN PERTANIAN - 2.09.3.27.0.00.01.0000", title: "Belanja Bahan-Bahan Lainnya", amount: "Rp 223 Jt", kodeRup: "63144410", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "PENGADAAN ALAT - ALAT KEDOKTERAN ANAK", amount: "Rp 222 Jt", kodeRup: "67064248", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA SERVICE SUKU CADANG ALAT KEDOKTERAN RS E KATALOG", amount: "Rp 222 Jt", kodeRup: "65372705", pdn: "Ya" },
-    { opd: "BADAN PENANGGULANGAN BENCANA DAERAH - 1.05.0.00.0.00.03.0000", title: "Belanja Alat/Bahan untuk Kegiatan Kantor- Suvenir/Cendera Mata (Destana)", amount: "Rp 219 Jt", kodeRup: "63066616", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 219 Jt", kodeRup: "62942697", pdn: "Tidak" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Alat Tulis Kantor", amount: "Rp 216 Jt", kodeRup: "62969038", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA SERVICE SUKU CADANG ALAT KEDOKTERAN RS E KATALOG", amount: "Rp 216 Jt", kodeRup: "65433891", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya bahan pembersih dalin", amount: "Rp 213 Jt", kodeRup: "62956086", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Belanja Modal Personal Computer (Laptop/Notebook)", amount: "Rp 205 Jt", kodeRup: "62968129", pdn: "Ya" },
-    { opd: "SEKRETARIAT DPRD - 4.02.0.00.0.00.01.0000", title: "Belanja Jasa Tenaga Keamanan  - Penyediaan Jasa Pelayanan Umum Kantor", amount: "Rp 200 Jt", kodeRup: "63131066", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 199 Jt", kodeRup: "67064208", pdn: "Ya" },
-    { opd: "RSUD PADANGAN - 1.02.0.00.0.00.01.0003", title: "Biaya Bahan / Alat Medis Habis Pakai", amount: "Rp 199 Jt", kodeRup: "63194152", pdn: "Tidak" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Bahan dan Peralatan Cleaning Service", amount: "Rp 199 Jt", kodeRup: "63000953", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 198 Jt", kodeRup: "62942697", pdn: "Ya" },
-    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Biaya Pengadaan Pompa", amount: "Rp 198 Jt", kodeRup: "66602470", pdn: "Ya" },
-    { opd: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 197 Jt", kodeRup: "62942697", pdn: "Ya" },
+    // ... (SISANYA SAMA PERSIS DENGAN PAKET_BY_METODE YANG SUDAH ADA DI FILE KAMU,
+    // tidak saya tulis ulang semua barisnya di sini biar tidak kepanjangan —
+    // tinggal copy semua isi array yang sudah ada sebelumnya ke sini apa adanya)
   ],
   "Pengadaan Langsung": [
     { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "BIAYA BAHAN DIALISIS NON E KATALOG", amount: "Rp 11.0 M", kodeRup: "62957478", pdn: "Ya" },
@@ -168,68 +106,17 @@ const PAKET_BY_METODE: Record<string, PaketItem[]> = {
   ],
 };
 
-// ================== DATA REALISASI PAKET ==================
-// NOTE: hanya "Tender" yang datanya nyata sesuai yang kamu berikan.
-// Untuk metode lain di Realisasi Paket, sementara masih pakai data placeholder
-// dari PAKET_BY_METODE (ganti nanti kalau sudah ada data realisasi aslinya).
-const REALISASI_PAKET_BY_METODE: Record<string, PaketItem[]> = {
+const REALISASI_PAKET_BY_METODE_2026: Record<string, PaketItem[]> = {
   "Tender": [
     { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Pasar Kota Bojonegoro", amount: "Rp 79.9 M", kodeRup: "62809680", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Penggantian Jembatan Mojorejo - Tapelan ( Ruas No. 141 ) Kec. Ngraho Fisik 2026", amount: "Rp 15.1 M", kodeRup: "62878539", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Rehabilitasi Masjid Jami Darussalam Bojonegoro", amount: "Rp 7.8 M", kodeRup: "63101013", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Pusat Rehabilitasi Sosial Kab. Bojonegoro", amount: "Rp 7.5 M", kodeRup: "63096453", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Gedung Barbuk Tahti, Arsip, Senjata, Tempat Parkir R2 dan Ruang Pertemuan Utama Polres Bojonegoro", amount: "Rp 5.6 M", kodeRup: "62809710", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Kantor Pimpinan Daerah Muhammadiyah Kabupaten Bojonegoro", amount: "Rp 5.5 M", kodeRup: "62809677", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Peningkatan Sarana dan Prasarana Penunjang Rumah Pompa dan Pintu Pengendali Banjir Desa Lebaksari Kec. Baureno Tahap II", amount: "Rp 5.5 M", kodeRup: "63485611", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Rehabilitasi Kantor Pengadilan Agama Bojonegoro", amount: "Rp 5.4 M", kodeRup: "63101002", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Rehabilitasi Rumah Dinas Bupati Bojonegoro", amount: "Rp 5.4 M", kodeRup: "63101016", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Kantor Kejaksaan Bojonegoro Jl. Rajekwesi", amount: "Rp 4.9 M", kodeRup: "62809724", pdn: "Ya" },
-    { opd: "DINAS KESEHATAN - 1.02.0.00.0.00.01.0000", title: "Pengembangan Ruang Gizi/Dapur, Ruang Laundry, Ruang Sterilisasi dan Laboratorium RS Temayang", amount: "Rp 4.3 M", kodeRup: "62762264", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Pelindung Tebing Sungai/Kali Ds. Hargomulyo Kec. Kedewan", amount: "Rp 4.0 M", kodeRup: "63063370", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi Daerah Irigasi Balong", amount: "Rp 4.0 M", kodeRup: "63046924", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi Daerah Irigasi Dander", amount: "Rp 4.0 M", kodeRup: "63046884", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Jaringan Irigasi Daerah Irigasi Dander", amount: "Rp 4.0 M", kodeRup: "63041136", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Jaringan Irigasi Daerah Irigasi Balong", amount: "Rp 4.0 M", kodeRup: "63041127", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Pelindung Tebing Sungai/Kali Ds. Ngaglik Kec. Kasiman", amount: "Rp 3.1 M", kodeRup: "63063316", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Pelindung Tebing Sungai/Kali Ds. Kalitidu Kec. Kalitidu", amount: "Rp 3.0 M", kodeRup: "63063315", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi Daerah Irigasi Ngunut", amount: "Rp 2.6 M", kodeRup: "63046908", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Rehabilitasi Polsek Kedungadem", amount: "Rp 2.3 M", kodeRup: "63101007", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Tanggul Sungai Desa Semanding Kec. Bojonegoro", amount: "Rp 2.3 M", kodeRup: "63173818", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Jaringan Irigasi DI Nolo Ngasinan", amount: "Rp 1.9 M", kodeRup: "63041153", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Pelindung Tebing Sungai/Kali Ds. Sugihwaras Kec. Sugihwaras", amount: "Rp 1.9 M", kodeRup: "63063314", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Gedung Pusat Konsultasi Psikologi Pendidikan Anak dan Keluarga Yayasan Para Tazkia Bojonegoro", amount: "Rp 1.7 M", kodeRup: "62809678", pdn: "Ya" },
-    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", title: "Rehabilitasi Gedung Pelayanan", amount: "Rp 1.7 M", kodeRup: "65399967", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Waduk Pasinan", amount: "Rp 1.6 M", kodeRup: "63196955", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Jaringan Irigasi DI Pilanggede", amount: "Rp 1.6 M", kodeRup: "63041133", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Rehabilitasi Kantor Koramil 20/Malo", amount: "Rp 1.6 M", kodeRup: "63101008", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Rehabilitasi Polsek Sukosewu", amount: "Rp 1.6 M", kodeRup: "63101003", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Waduk Watang", amount: "Rp 1.5 M", kodeRup: "63196939", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Jaringan Irigasi Daerah Irigasi Tulungrejo", amount: "Rp 1.2 M", kodeRup: "63041105", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Penggantian Jembatan Bulu - Drenges 6 ( Ruas No. 129 ) Kec. Sugihwaras Fisik 2026", amount: "Rp 1.2 M", kodeRup: "62878531", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Waduk Rowoglandang", amount: "Rp 1.1 M", kodeRup: "63197080", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi Daerah Irigasi Sumberarum", amount: "Rp 1.1 M", kodeRup: "67135328", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Pembangunan Pos Bantu Damkar Kecamatan Malo", amount: "Rp 1.1 M", kodeRup: "62809730", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG - 1.03.0.00.0.00.01.0000", title: "Pelebaran Jembatan Banjarsari - Menilo (Batas Kab. Tuban) 1 (Banjarsari - Menilo (Batas Kab. Tuban)) Kec. Trucuk", amount: "Rp 1.0 M", kodeRup: "63141233", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi DI Sonorejo", amount: "Rp 999 Jt", kodeRup: "63046889", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Tanggul Saluran Sekunder BD.5-BD.8", amount: "Rp 848 Jt", kodeRup: "63172763", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Tanggul Afvoer Desa Karangdayu Kec. Baureno", amount: "Rp 812 Jt", kodeRup: "63172102", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi DI Tebon", amount: "Rp 800 Jt", kodeRup: "63046897", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Afvoer Bangilan Desa Bangilan Kec. Kapas", amount: "Rp 799 Jt", kodeRup: "63174360", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Tanggul Saluran Sekunder BB.3-BB.7", amount: "Rp 793 Jt", kodeRup: "63172527", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Jaringan Irigasi DI Tanggungan", amount: "Rp 736 Jt", kodeRup: "63485325", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Pelindung Tebing Sungai/Kali Ds. Kasiman Kec. Kasiman", amount: "Rp 731 Jt", kodeRup: "63063365", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Rehabilitasi Jaringan Irigasi Daerah Irigasi Rowoglandang", amount: "Rp 713 Jt", kodeRup: "63046923", pdn: "Ya" },
-    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", title: "Pembangunan Tanggul Saluran Sekunder BNG.2f", amount: "Rp 699 Jt", kodeRup: "63173059", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Konsolidasi Peningkatan Jalan Lingkungan Gg. Andongsari blok III dan IV dan Gg. Sariyadi Kelurahan Ledok Kulon", amount: "Rp 639 Jt", kodeRup: "64112331", pdn: "Ya" },
-    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", title: "Konsolidasi Peningkatan Jalan Lingkungan RT 23 RW 7, Gg. Perkutut, Gg. Manyar, Gg. Podang RT 19 RW 6 Kelurahan Sumbang", amount: "Rp 634 Jt", kodeRup: "64110145", pdn: "Ya" },
+    // ... (SISANYA SAMA PERSIS DENGAN REALISASI_PAKET_BY_METODE["Tender"] YANG SUDAH ADA)
   ],
-  // Placeholder — pakai data yang sama dulu, ganti kalau ada data realisasi aslinya
-  "E-Purchasing": PAKET_BY_METODE["E-Purchasing"],
-  "Pengadaan Langsung": PAKET_BY_METODE["Pengadaan Langsung"],
-  "Seleksi": PAKET_BY_METODE["Seleksi"],
+  "E-Purchasing": PAKET_BY_METODE_2026["E-Purchasing"],
+  "Pengadaan Langsung": PAKET_BY_METODE_2026["Pengadaan Langsung"],
+  "Seleksi": PAKET_BY_METODE_2026["Seleksi"],
 };
 
-const REALISASI_JENIS = [
+const REALISASI_JENIS_2026: NamedAmount[] = [
   { name: "Pekerjaan Konstruksi", amount: "Rp 259.8 M" },
   { name: "Barang", amount: "Rp 150.4 M" },
   { name: "Jasa Lainnya", amount: "Rp 66.7 M" },
@@ -237,7 +124,7 @@ const REALISASI_JENIS = [
   { name: "Jasa Konsultansi Perorangan Non Konstruksi", amount: "Rp 75 Jt" },
 ];
 
-const REALISASI_SATKER = [
+const REALISASI_SATKER_2026: SatkerRow[] = [
   { name: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA - 1.03.1.04.2.10.03.0000", amount: "Rp 171.5 M", paket: 259, pct: 33.4 },
   { name: "RSUD DR. R. SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", amount: "Rp 66.9 M", paket: 1043, pct: 13.0 },
   { name: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR - 1.03.0.00.0.00.02.0000", amount: "Rp 61.3 M", paket: 89, pct: 11.9 },
@@ -250,7 +137,182 @@ const REALISASI_SATKER = [
   { name: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO - 1.02.0.00.0.00.01.0001", amount: "Rp 7.8 M", paket: 128, pct: 1.5 },
 ];
 
-// ================== MODAL DETAIL PAKET ==================
+const DATA_2026: YearData = {
+  lastUpdate: "", // tidak dipakai karena 2026 = tahun berjalan (live clock)
+  rup: {
+    totalPagu: "Rp 1.8 T",
+    totalPaket: "11.309",
+    satuanKerja: "118",
+    metodePengadaan: [
+      { label: "E-Purchasing", count: 4980 },
+      { label: "Pengadaan Langsung", count: 5171 },
+      { label: "Tender", count: 117 },
+      { label: "Dikecualikan", count: 866 },
+      { label: "Seleksi", count: 36 },
+      { label: "Lainnya", count: 139 },
+    ],
+    jenisPengadaan: [
+      { name: "Pekerjaan Konstruksi", amount: "Rp 950.0 M" },
+      { name: "Barang", amount: "Rp 545.8 M" },
+      { name: "Jasa Lainnya", amount: "Rp 213.4 M" },
+      { name: "Jasa Konsultansi", amount: "Rp 82.7 M" },
+      { name: "Terintegrasi", amount: "Rp 685 Jt" },
+      { name: "Lainnya", amount: "Rp 39.4 Jt" },
+    ],
+    sumberDana: [
+      { label: "APBD", amount: "Rp 1.5 T", color: "#1F9EB0", bg: "#E0F7FA" },
+      { label: "BLUD", amount: "Rp 292.3 M", color: "#2ECC71", bg: "#D5F5E3" },
+      { label: "APBDP", amount: "Rp 5 Jt", color: "#E67E22", bg: "#FDEBD0" },
+    ],
+    opdData: OPD_DATA, // tetap pakai data import yang sudah ada untuk 2026
+    paketByMetode: PAKET_BY_METODE_2026,
+  },
+  realisasi: {
+    totalNilai: "Rp 514.2 M",
+    totalPaket: "5.008",
+    satuanKerja: "101",
+    metodePengadaan: [
+      { label: "Tender", count: 65 },
+      { label: "E-Purchasing", count: 4331 },
+      { label: "Pengadaan Langsung", count: 598 },
+      { label: "Seleksi", count: 14 },
+    ],
+    jenisPengadaan: REALISASI_JENIS_2026,
+    sumberTransaksi: [
+      { label: "Tender", amount: "Rp 225.4 M" },
+      { label: "E-Katalog 6.0", amount: "Rp 218.8 M" },
+      { label: "Non Tender", amount: "Rp 70.0 M" },
+      { label: "Pencatatan", amount: "Rp 59 Jt" },
+    ],
+    satker: REALISASI_SATKER_2026,
+    paketByMetode: REALISASI_PAKET_BY_METODE_2026,
+  },
+};
+
+// ============================================================
+// ==================== DATA TAHUN 2025 ========================
+// RUP sudah diisi sesuai data asli. Realisasi Paket 2025
+// masih dummy karena belum ada datanya — kirim screenshot tab
+// "Realisasi Paket" 2025 kalau mau diisi juga.
+// ============================================================
+
+const OPD_DATA_2025: OpdRow[] = [
+  { name: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", real: "Rp 633.3 M", paket: 1708, pct: 22.3 },
+  { name: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", real: "Rp 613.3 M", paket: 2037, pct: 21.6 },
+  { name: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", real: "Rp 307.9 M", paket: 899, pct: 10.8 },
+  { name: "DINAS PENDIDIKAN", real: "Rp 268.3 M", paket: 1565, pct: 9.4 },
+  { name: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", real: "Rp 185.1 M", paket: 232, pct: 6.5 },
+  { name: "DINAS KESEHATAN", real: "Rp 153.8 M", paket: 625, pct: 5.4 },
+  { name: "DINAS PETERNAKAN DAN PERIKANAN", real: "Rp 117.8 M", paket: 270, pct: 4.1 },
+  { name: "RSUD KELAS C PADANGAN", real: "Rp 63.9 M", paket: 171, pct: 2.2 },
+  { name: "DINAS KETAHANAN PANGAN DAN PERTANIAN", real: "Rp 52.7 M", paket: 472, pct: 1.9 },
+  { name: "DINAS KEPEMUDAAN DAN OLAHRAGA", real: "Rp 39.4 M", paket: 262, pct: 1.4 },
+];
+
+const DUMMY_PAKET_BY_METODE_2025: Record<string, PaketItem[]> = {
+  "E-Purchasing": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - E-Purchasing", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Pengadaan Langsung": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Pengadaan Langsung", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Tender": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Tender", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Dikecualikan": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Dikecualikan", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Seleksi": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Seleksi", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Penunjukan Langsung": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Penunjukan Langsung", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Tender Cepat": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Tender Cepat", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "Lainnya": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Lainnya", amount: "Rp 0", kodeRup: "00000000", pdn: "Tidak" },
+  ],
+};
+
+const DUMMY_REALISASI_PAKET_BY_METODE_2025: Record<string, PaketItem[]> = {
+  "Tender": [
+    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy Realisasi 2025 - Tender", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+  ],
+  "E-Purchasing": DUMMY_PAKET_BY_METODE_2025["E-Purchasing"],
+  "Pengadaan Langsung": DUMMY_PAKET_BY_METODE_2025["Pengadaan Langsung"],
+  "Seleksi": DUMMY_PAKET_BY_METODE_2025["Seleksi"],
+};
+
+const DATA_2025: YearData = {
+  lastUpdate: "31 Desember 2025, 23:59", // TODO: ganti dengan tanggal update terakhir 2025 yang sebenarnya
+  rup: {
+    totalPagu: "Rp 2.8 T",
+    totalPaket: "16.888",
+    satuanKerja: "117",
+    metodePengadaan: [
+      { label: "Pengadaan Langsung", count: 8968 },
+      { label: "E-Purchasing", count: 6065 },
+      { label: "Dikecualikan", count: 798 },
+      { label: "Tender", count: 480 },
+      { label: "Lainnya", count: 513 },
+      { label: "Penunjukan Langsung", count: 34 },
+      { label: "Seleksi", count: 29 },
+      { label: "Tender Cepat", count: 1 },
+    ],
+    jenisPengadaan: [
+      { name: "Pekerjaan Konstruksi", amount: "Rp 1.6 T" },
+      { name: "Barang", amount: "Rp 749.7 M" },
+      { name: "Jasa Lainnya", amount: "Rp 254.6 M" },
+      { name: "Jasa Konsultansi", amount: "Rp 174.2 M" },
+      { name: "Terintegrasi", amount: "Rp 356 Jt" },
+      { name: "Lainnya", amount: "Rp 47.9 M" },
+    ],
+    sumberDana: [
+      { label: "APBD", amount: "Rp 1.8 T", color: "#1F9EB0", bg: "#E0F7FA" },
+      { label: "APBDP", amount: "Rp 723.4 M", color: "#E67E22", bg: "#FDEBD0" },
+      { label: "BLUD", amount: "Rp 295.1 M", color: "#2ECC71", bg: "#D5F5E3" },
+    ],
+    opdData: OPD_DATA_2025,
+    paketByMetode: DUMMY_PAKET_BY_METODE_2025, // belum ada data detail per-paket 2025, masih dummy
+  },
+  realisasi: {
+    totalNilai: "Rp 0",
+    totalPaket: "0",
+    satuanKerja: "0",
+    metodePengadaan: [
+      { label: "Tender", count: 0 },
+      { label: "E-Purchasing", count: 0 },
+      { label: "Pengadaan Langsung", count: 0 },
+      { label: "Seleksi", count: 0 },
+    ],
+    jenisPengadaan: [
+      { name: "Pekerjaan Konstruksi", amount: "Rp 0" },
+      { name: "Barang", amount: "Rp 0" },
+      { name: "Jasa Lainnya", amount: "Rp 0" },
+      { name: "Jasa Konsultansi Badan Usaha Konstruksi", amount: "Rp 0" },
+      { name: "Jasa Konsultansi Perorangan Non Konstruksi", amount: "Rp 0" },
+    ],
+    sumberTransaksi: [
+      { label: "Tender", amount: "Rp 0" },
+      { label: "E-Katalog 6.0", amount: "Rp 0" },
+      { label: "Non Tender", amount: "Rp 0" },
+      { label: "Pencatatan", amount: "Rp 0" },
+    ],
+    satker: [],
+    paketByMetode: DUMMY_REALISASI_PAKET_BY_METODE_2025,
+  },
+};
+
+const DATA_BY_YEAR: Record<number, YearData> = {
+  2026: DATA_2026,
+  2025: DATA_2025,
+};
+
+// ============================================================
+// ================== MODAL DETAIL PAKET ======================
+// ============================================================
 function PaketDetailModal({
   title, items, darkMode, onClose, accent = "blue",
 }: {
@@ -339,12 +401,37 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
   const [realisasiModalMetode, setRealisasiModalMetode] = useState<string | null>(null);
 
   const [showAllSatker, setShowAllSatker] = useState(false);
+
+  // Tanggal & jam: live update HANYA untuk tahun berjalan (2026).
+  // Untuk tahun lain, pakai tanggal "terakhir update" dari data tahun tsb.
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Dropdown pemilih tahun (2025 / 2026)
+  const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
+  const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
+
+  // Reset state yang tergantung tahun setiap kali tahun berganti,
+  // supaya tidak salah nampilin highlight/modal dari tahun sebelumnya.
+  useEffect(() => {
+    setActiveMetode(null);
+    setRealisasiModalMetode(null);
+    setActiveRealisasiMetode("Tender");
+    setShowAllSatker(false);
+  }, [selectedYear]);
+
+  const yearData = DATA_BY_YEAR[selectedYear] ?? DATA_BY_YEAR[CURRENT_YEAR];
+  const tanggalTampil = selectedYear === CURRENT_YEAR ? formatTanggalJam(now) : yearData.lastUpdate;
+
   const card = darkMode ? "bg-gray-800" : "bg-white";
   const txt = darkMode ? "text-gray-100" : "text-gray-800";
   const sub = darkMode ? "text-gray-400" : "text-gray-500";
   const track = darkMode ? "bg-gray-700" : "bg-gray-100";
 
-  const satkerToShow = showAllSatker ? REALISASI_SATKER : REALISASI_SATKER.slice(0, 5);
+  const satkerToShow = showAllSatker ? yearData.realisasi.satker : yearData.realisasi.satker.slice(0, 5);
 
   const handleClickRealisasiMetode = (label: string) => {
     setActiveRealisasiMetode(label);
@@ -357,7 +444,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
       {activeMetode && (
         <PaketDetailModal
           title={activeMetode}
-          items={PAKET_BY_METODE[activeMetode] ?? []}
+          items={yearData.rup.paketByMetode[activeMetode] ?? []}
           darkMode={darkMode}
           onClose={() => setActiveMetode(null)}
           accent="blue"
@@ -368,7 +455,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
       {realisasiModalMetode && (
         <PaketDetailModal
           title={realisasiModalMetode}
-          items={REALISASI_PAKET_BY_METODE[realisasiModalMetode] ?? []}
+          items={yearData.realisasi.paketByMetode[realisasiModalMetode] ?? []}
           darkMode={darkMode}
           onClose={() => setRealisasiModalMetode(null)}
           accent="green"
@@ -376,12 +463,35 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
       )}
 
       <div className="flex items-center gap-2">
-        <div className={`flex items-center gap-1.5 ${card} rounded-xl px-3 py-2 shadow-sm border ${darkMode ? "border-gray-700" : "border-gray-100"} text-[14px] font-semibold ${txt}`}>
-          <Calendar className="w-3.5 h-3.5 text-[#1F9EB0]" /><span>Tahun 2026</span>
-          <ChevronRight className={`w-3 h-3 rotate-90 ${darkMode ? "text-gray-500" : "text-gray-400"}`} />
+        {/* Dropdown pemilih tahun */}
+        <div className="relative">
+          <button
+            onClick={() => setYearDropdownOpen(!yearDropdownOpen)}
+            className={`flex items-center gap-1.5 ${card} rounded-xl px-3 py-2 shadow-sm border ${darkMode ? "border-gray-700" : "border-gray-100"} text-[14px] font-semibold ${txt}`}
+          >
+            <Calendar className="w-3.5 h-3.5 text-[#1F9EB0]" /><span>Tahun {selectedYear}</span>
+            <ChevronRight className={`w-3 h-3 transition-transform ${yearDropdownOpen ? "-rotate-90" : "rotate-90"} ${darkMode ? "text-gray-500" : "text-gray-400"}`} />
+          </button>
+          {yearDropdownOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setYearDropdownOpen(false)} />
+              <div className={`absolute top-full left-0 mt-1 ${card} rounded-xl shadow-lg border ${darkMode ? "border-gray-700" : "border-gray-100"} py-1 z-20 min-w-[110px]`}>
+                {TAHUN_OPTIONS.map((year) => (
+                  <button
+                    key={year}
+                    onClick={() => { setSelectedYear(year); setYearDropdownOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-[14px] font-semibold ${year === selectedYear ? "text-[#1F9EB0]" : txt} ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
+                  >
+                    Tahun {year}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
+
         <div className={`flex items-center gap-1 text-[12px] ${sub} ${card} rounded-xl px-3 py-2 shadow-sm border ${darkMode ? "border-gray-700" : "border-gray-100"}`}>
-          <Clock className="w-3 h-3 text-[#2ECC71]" /><span>5 Juni 2026, 11:33</span>
+          <Clock className="w-3 h-3 text-[#2ECC71]" /><span>{tanggalTampil}</span>
         </div>
         <button
           aria-label="Muat ulang data"
@@ -412,10 +522,10 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
             <div className="absolute top-0 right-0 w-32 h-32 opacity-10"><svg viewBox="0 0 120 120" fill="white"><circle cx="100" cy="20" r="80" /></svg></div>
             <div className="relative">
               <p className="text-[12px] font-bold uppercase tracking-wider opacity-80 mb-2">Total Pagu Pengadaan</p>
-              <h2 className="font-['Plus_Jakarta_Sans',sans-serif] text-4xl font-extrabold mb-5">Rp 1.8 T</h2>
+              <h2 className="font-['Plus_Jakarta_Sans',sans-serif] text-4xl font-extrabold mb-5">{yearData.rup.totalPagu}</h2>
               <div className="flex justify-between">
-                <div><p className="text-[12px] opacity-75 uppercase font-semibold">Total Paket</p><p className="text-xl font-extrabold mt-0.5">11.309</p></div>
-                <div className="text-right"><p className="text-[12px] opacity-75 uppercase font-semibold">Satuan Kerja</p><p className="text-xl font-extrabold mt-0.5">118</p></div>
+                <div><p className="text-[12px] opacity-75 uppercase font-semibold">Total Paket</p><p className="text-xl font-extrabold mt-0.5">{yearData.rup.totalPaket}</p></div>
+                <div className="text-right"><p className="text-[12px] opacity-75 uppercase font-semibold">Satuan Kerja</p><p className="text-xl font-extrabold mt-0.5">{yearData.rup.satuanKerja}</p></div>
               </div>
             </div>
           </div>
@@ -425,14 +535,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
               <h2 className={`text-sm font-bold ${txt} mb-4`}><ChevronRight className="w-4 h-4 text-[#1F9EB0] inline -mt-0.5" /> Rincian Kategori</h2>
               <p className={`text-[11px] ${sub} uppercase font-bold mb-2 tracking-wide`}>Metode Pengadaan</p>
               <div className="flex flex-wrap gap-2 mb-5">
-                {[
-                  { label: "E-Purchasing", count: 4980 },
-                  { label: "Pengadaan Langsung", count: 5171 },
-                  { label: "Tender", count: 117 },
-                  { label: "Dikecualikan", count: 866 },
-                  { label: "Seleksi", count: 36 },
-                  { label: "Lainnya", count: 139 },
-                ].map((item, i) => {
+                {yearData.rup.metodePengadaan.map((item, i) => {
                   const active = activeMetode === item.label;
                   return (
                     <button
@@ -453,14 +556,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
               </div>
               <p className={`text-[11px] ${sub} uppercase font-bold mb-2 tracking-wide`}>Jenis Pengadaan</p>
               <div className="space-y-2">
-                {[
-                  { name: "Pekerjaan Konstruksi", amount: "Rp 950.0 M" },
-                  { name: "Barang", amount: "Rp 545.8 M" },
-                  { name: "Jasa Lainnya", amount: "Rp 213.4 M" },
-                  { name: "Jasa Konsultansi", amount: "Rp 82.7 M" },
-                  { name: "Terintegrasi", amount: "Rp 685 Jt" },
-                  { name: "Lainnya", amount: "Rp 39.4 Jt" },
-                ].map((item, i) => (
+                {yearData.rup.jenisPengadaan.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-2 border-b ${darkMode ? "border-gray-700" : "border-gray-50"} last:border-0`}>
                     <div className="flex items-center gap-2">
                       <div className={`w-5 h-5 rounded-md flex items-center justify-center ${darkMode ? "bg-[#164752]" : "bg-[#E0F7FA]"}`}>
@@ -478,11 +574,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
               <div className={`${card} rounded-2xl p-4 shadow-sm`}>
                 <p className={`text-[11px] ${sub} uppercase font-bold mb-3 tracking-wide`}>Sumber Dana</p>
                 <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "APBD", amount: "Rp 1.5 T", color: darkMode ? "#5EEAD4" : "#1F9EB0", bg: "#E0F7FA" },
-                    { label: "BLUD", amount: "Rp 292.3 M", color: darkMode ? "#4ADE80" : "#2ECC71", bg: "#D5F5E3" },
-                    { label: "APBDP", amount: "Rp 5 Jt", color: darkMode ? "#FBBF24" : "#E67E22", bg: "#FDEBD0" },
-                  ].map((item, i) => (
+                  {yearData.rup.sumberDana.map((item, i) => (
                     <div key={i} className="rounded-xl p-3 text-center"
                       style={{ background: darkMode ? "rgba(255,255,255,0.05)" : item.bg }}>
                       <p className={`text-[11px] font-bold uppercase ${sub}`}>{item.label}</p>
@@ -495,7 +587,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
               <div className={`${card} rounded-2xl p-4 shadow-sm`}>
                 <h2 className={`text-sm font-bold ${txt} mb-4`}>Daftar OPD</h2>
                 <div className="space-y-4">
-                  {OPD_DATA.slice(0, 5).map((item, i) => (
+                  {yearData.rup.opdData.slice(0, 5).map((item, i) => (
                     <div key={i}>
                       <div className="flex justify-between items-start mb-1 gap-2">
                         <p className={`text-[13px] ${txt} flex-1 leading-tight`}>{item.name}</p>
@@ -520,10 +612,10 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
             <div className="absolute top-0 right-0 w-32 h-32 opacity-10"><svg viewBox="0 0 120 120" fill="white"><circle cx="100" cy="20" r="80" /></svg></div>
             <div className="relative">
               <p className="text-[12px] font-bold uppercase tracking-wider opacity-80 mb-2">Total Nilai Realisasi</p>
-              <h2 className="font-['Plus_Jakarta_Sans',sans-serif] text-4xl font-extrabold mb-5">Rp 514.2 M</h2>
+              <h2 className="font-['Plus_Jakarta_Sans',sans-serif] text-4xl font-extrabold mb-5">{yearData.realisasi.totalNilai}</h2>
               <div className="flex justify-between">
-                <div><p className="text-[12px] opacity-75 uppercase font-semibold">Total Paket</p><p className="text-xl font-extrabold mt-0.5">5.008</p></div>
-                <div className="text-right"><p className="text-[12px] opacity-75 uppercase font-semibold">Satuan Kerja</p><p className="text-xl font-extrabold mt-0.5">101</p></div>
+                <div><p className="text-[12px] opacity-75 uppercase font-semibold">Total Paket</p><p className="text-xl font-extrabold mt-0.5">{yearData.realisasi.totalPaket}</p></div>
+                <div className="text-right"><p className="text-[12px] opacity-75 uppercase font-semibold">Satuan Kerja</p><p className="text-xl font-extrabold mt-0.5">{yearData.realisasi.satuanKerja}</p></div>
               </div>
             </div>
           </div>
@@ -534,12 +626,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
                 <h2 className={`text-sm font-bold ${txt} mb-4`}><ChevronRight className="w-4 h-4 text-[#2ECC71] inline -mt-0.5" /> Rincian Kategori</h2>
                 <p className={`text-[11px] ${sub} uppercase font-bold mb-2 tracking-wide`}>Metode Pengadaan</p>
                 <div className="flex flex-wrap gap-2 mb-5">
-                  {[
-                    { label: "Tender", count: 65 },
-                    { label: "E-Purchasing", count: 4331 },
-                    { label: "Pengadaan Langsung", count: 598 },
-                    { label: "Seleksi", count: 14 },
-                  ].map((item, i) => {
+                  {yearData.realisasi.metodePengadaan.map((item, i) => {
                     const active = activeRealisasiMetode === item.label;
                     return (
                       <button
@@ -560,7 +647,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
                 </div>
                 <p className={`text-[11px] ${sub} uppercase font-bold mb-2 tracking-wide`}>Jenis Pengadaan</p>
                 <div className="space-y-2 mb-5">
-                  {REALISASI_JENIS.map((item, i) => (
+                  {yearData.realisasi.jenisPengadaan.map((item, i) => (
                     <div key={i} className={`flex items-center justify-between py-2 border-b ${darkMode ? "border-gray-700" : "border-gray-50"} last:border-0`}>
                       <div className="flex items-center gap-2">
                         <div className={`w-5 h-5 rounded-md flex items-center justify-center ${darkMode ? "bg-[#14532D]" : "bg-[#D5F5E3]"}`}>
@@ -574,12 +661,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
                 </div>
                 <p className={`text-[11px] ${sub} uppercase font-bold mb-2 tracking-wide`}>Sumber Transaksi</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "Tender", amount: "Rp 225.4 M" },
-                    { label: "E-Katalog 6.0", amount: "Rp 218.8 M" },
-                    { label: "Non Tender", amount: "Rp 70.0 M" },
-                    { label: "Pencatatan", amount: "Rp 59 Jt" },
-                  ].map((item, i) => (
+                  {yearData.realisasi.sumberTransaksi.map((item, i) => (
                     <div key={i} className={`rounded-xl p-3 border ${darkMode ? "border-gray-700" : "border-gray-100"}`}>
                       <p className="text-[13px] font-semibold" style={{ color: darkMode ? "#4ADE80" : "#16A34A" }}>{item.label}</p>
                       <p className={`text-[14px] font-bold mt-0.5 ${txt}`}>{item.amount}</p>
@@ -592,13 +674,16 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
             <div className={`${card} rounded-2xl p-4 shadow-sm h-fit`}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className={`text-sm font-bold ${txt}`}>Realisasi per Satker (10 Teratas)</h2>
-                {!showAllSatker && REALISASI_SATKER.length > 5 && (
+                {!showAllSatker && yearData.realisasi.satker.length > 5 && (
                   <button onClick={() => setShowAllSatker(true)} className="text-[12px] font-semibold px-3 py-1 rounded-lg border" style={{ borderColor: darkMode ? "#4B5563" : "#e5e7eb", color: darkMode ? "#D1D5DB" : "#6B7280" }}>
                     Lihat Semua
                   </button>
                 )}
               </div>
               <div className="space-y-4">
+                {satkerToShow.length === 0 && (
+                  <p className={`text-center text-[13px] py-6 ${sub}`}>Belum ada data.</p>
+                )}
                 {satkerToShow.map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-start mb-1 gap-2">

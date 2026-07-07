@@ -3,15 +3,15 @@ import type { Page } from "../../types";
 import type { ReactNode } from "react";
 
 const LEFT_ITEMS: { page: Page; label: string; icon: ReactNode }[] = [
-  { page: "realisasi", label: "Realisasi", icon: <BarChart2 className="w-3.5 h-3.5" /> },
-  { page: "pendapatan", label: "Pendapatan", icon: <DollarSign className="w-3.5 h-3.5" /> },
-  { page: "pengadaan", label: "Pengadaan", icon: <Building2 className="w-3.5 h-3.5" /> },
+  { page: "realisasi", label: "Realisasi", icon: <BarChart2 className="w-[18px] h-[18px]" /> },
+  { page: "pendapatan", label: "Pendapatan", icon: <DollarSign className="w-[18px] h-[18px]" /> },
+  { page: "pengadaan", label: "Pengadaan", icon: <Building2 className="w-[18px] h-[18px]" /> },
 ];
 
 const RIGHT_ITEMS: { page: Page; label: string; icon: ReactNode }[] = [
-  { page: "sentimen", label: "Sentimen", icon: <MessageCircle className="w-3.5 h-3.5" /> },
-  { page: "isu-strategis", label: "Isu", icon: <AlertCircle className="w-3.5 h-3.5" /> },
-  { page: "pegawai", label: "Pegawai", icon: <Users className="w-3.5 h-3.5" /> },
+  { page: "sentimen", label: "Sentimen", icon: <MessageCircle className="w-[18px] h-[18px]" /> },
+  { page: "isu-strategis", label: "Isu", icon: <AlertCircle className="w-[18px] h-[18px]" /> },
+  { page: "pegawai", label: "Pegawai", icon: <Users className="w-[18px] h-[18px]" /> },
 ];
 
 function FlatButton({
@@ -31,12 +31,12 @@ function FlatButton({
     <button
       onClick={onClick}
       aria-label={label}
-      className="flex w-full min-w-0 flex-col items-center justify-end gap-0.5"
+      className="flex w-full min-w-0 flex-col items-center justify-end gap-0.5 py-0.5"
     >
-      <div className="flex items-center justify-center w-5 h-5" style={{ color: active ? "#1F9EB0" : "#9CA3AF" }}>
+      <div className="flex items-center justify-center w-6 h-6" style={{ color: active ? "#1F9EB0" : "#9CA3AF" }}>
         {icon}
       </div>
-      <span className={`hidden sm:block text-[9px] font-semibold leading-tight text-center truncate w-full ${active ? (darkMode ? "text-white" : "text-[#1F9EB0]") : darkMode ? "text-gray-300" : "text-gray-500"}`}>
+      <span className={`text-[9.5px] font-semibold leading-tight text-center truncate w-full px-0.5 ${active ? (darkMode ? "text-white" : "text-[#1F9EB0]") : darkMode ? "text-gray-300" : "text-gray-500"}`}>
         {label}
       </span>
     </button>
@@ -59,10 +59,10 @@ function RaisedButton({
   return (
     <button onClick={onClick} aria-label={label} className="flex flex-col items-center gap-0.5">
       <div
-        className="flex items-center justify-center rounded-full -mt-4 hover:scale-105 transition-transform"
+        className="flex items-center justify-center rounded-full -mt-5 hover:scale-105 transition-transform"
         style={{
-          width: 36,
-          height: 36,
+          width: 44,
+          height: 44,
           background: darkMode
             ? "linear-gradient(160deg, #2D8FA0 0%, #1F9EB0 50%, #14495B 100%)"
             : "linear-gradient(160deg, #4FD3E5 0%, #1F9EB0 50%, #106674 100%)",
@@ -73,7 +73,7 @@ function RaisedButton({
       >
         {icon}
       </div>
-      <span className={`text-[9px] font-semibold leading-tight text-center ${active ? (darkMode ? "text-white" : "text-[#1F9EB0]") : darkMode ? "text-gray-300" : "text-gray-500"}`}>
+      <span className={`text-[9.5px] font-semibold leading-tight text-center ${active ? (darkMode ? "text-white" : "text-[#1F9EB0]") : darkMode ? "text-gray-300" : "text-gray-500"}`}>
         {label}
       </span>
     </button>
@@ -107,10 +107,10 @@ export function BottomNav({
         }}
       >
         {/* Ruang ekstra di atas supaya tombol menjorok tidak menabrak konten */}
-        <div className="h-3.5" />
+        <div className="h-4" />
 
-        <div className="px-2.5 pb-1.5">
-          <div className="flex items-end justify-between gap-1">
+        <div className="px-1.5 pb-1.5">
+          <div className="flex items-end justify-between gap-0.5">
             {LEFT_ITEMS.map((item) => (
               <FlatButton
                 key={item.page}
@@ -122,12 +122,12 @@ export function BottomNav({
               />
             ))}
 
-            <div className="flex-shrink-0 px-1.5">
+            <div className="flex-shrink-0 px-1">
               <RaisedButton
                 active={page === "home"}
                 darkMode={darkMode}
                 label="Home"
-                icon={<HomeIcon className="w-4 h-4" />}
+                icon={<HomeIcon className="w-5 h-5" />}
                 onClick={() => setPage("home")}
               />
             </div>

@@ -191,9 +191,10 @@ const DATA_2026: YearData = {
 
 // ============================================================
 // ==================== DATA TAHUN 2025 ========================
-// RUP sudah diisi sesuai data asli. Realisasi Paket 2025
-// masih dummy karena belum ada datanya — kirim screenshot tab
-// "Realisasi Paket" 2025 kalau mau diisi juga.
+// RUP sudah diisi sesuai data asli (Tender, E-Purchasing, Pengadaan Langsung,
+// Dikecualikan, Seleksi, Penunjukan Langsung, Tender Cepat).
+// Metode "Lainnya" masih dummy — kirim datanya kalau ada.
+// Realisasi Paket 2025 juga masih dummy.
 // ============================================================
 
 const OPD_DATA_2025: OpdRow[] = [
@@ -209,27 +210,82 @@ const OPD_DATA_2025: OpdRow[] = [
   { name: "DINAS KEPEMUDAAN DAN OLAHRAGA", real: "Rp 39.4 M", paket: 262, pct: 1.4 },
 ];
 
-const DUMMY_PAKET_BY_METODE_2025: Record<string, PaketItem[]> = {
+const PAKET_BY_METODE_2025: Record<string, PaketItem[]> = {
+  "Tender": [
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Pembangunan Pelindung Tebing Sungai/Kali Jalan MH Thamrin (Hulu) Kec. Bojonegoro", amount: "Rp 60.0 M", kodeRup: "58607389", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Pembangunan Rumah Sakit Kepohbaru", amount: "Rp 53.2 M", kodeRup: "60361944", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Sumberagung - Ngelo", amount: "Rp 20.0 M", kodeRup: "56878093", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Turi - Kaliklampok", amount: "Rp 20.0 M", kodeRup: "56878061", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Pembangunan Pelindung Tebing Sungai/Kali Jalan MH Thamrin (Hilir) Kec. Bojonegoro", amount: "Rp 20.0 M", kodeRup: "58607458", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Pembangunan Pelindung Tebing Sungai/Kali Kelurahan Ledok Kulon Kec. Bojonegoro", amount: "Rp 16.8 M", kodeRup: "58607481", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Pembangunan Sport Center Kawasan Jl. Veteran", amount: "Rp 16.6 M", kodeRup: "55197609", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Margomulyo - Kalangan", amount: "Rp 14.0 M", kodeRup: "59974857", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Watujago - Bobol", amount: "Rp 13.0 M", kodeRup: "59974853", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Pembangunan Saluran Drainase dan Trotoar Jalan JA Suprapto Sisi Selatan Kecamatan Bojonegoro", amount: "Rp 12.0 M", kodeRup: "54721392", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Sukosewu - Klepek", amount: "Rp 10.9 M", kodeRup: "60853745", pdn: "Ya" },
+    { opd: "DINAS KESEHATAN", title: "Pembangunan Puskesmas Ngraho ( Farmalkes Rek 2 )", amount: "Rp 10.3 M", kodeRup: "54540037", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Pembangunan Saluran Drainase dan Trotoar Jalan Panglima Polim Kecamatan Bojonegoro", amount: "Rp 10.2 M", kodeRup: "54721423", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Sekar - Kedungbrubus", amount: "Rp 9.8 M", kodeRup: "60853186", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Pembangunan Gedung Kantor Dinas Pemadam Kebakaran Kabupaten Bojonegoro", amount: "Rp 9.1 M", kodeRup: "55197615", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Kapas - Bogo", amount: "Rp 9.0 M", kodeRup: "56878085", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Rekonstruksi Jalan Sambeng - Besah", amount: "Rp 9.0 M", kodeRup: "60854220", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Rehabilitasi Kantor Pengadilan Agama Bojonegoro", amount: "Rp 8.5 M", kodeRup: "55316176", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Pembangunan Jembatan Klepek (Sukosewu - Klepek) Kec. Sukosewu (Lanjutan) *", amount: "Rp 8.1 M", kodeRup: "56801578", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Pembangunan Saluran Drainase dan Trotoar Jalan Lettu Suwolo Sisi Barat Kecamatan Bojonegoro", amount: "Rp 8.0 M", kodeRup: "54721450", pdn: "Ya" },
+  ],
   "E-Purchasing": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - E-Purchasing", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "BIAYA BAHAN OBAT OBATAN E KATALOG", amount: "Rp 56.0 M", kodeRup: "61731639", pdn: "Ya" },
+    { opd: "DINAS PETERNAKAN DAN PERIKANAN", title: "Belanja barang untuk dijual/diserahkan kepada masyarakat (kandang ayam petelur) P-APBD 2025", amount: "Rp 35.0 M", kodeRup: "60393219", pdn: "Ya" },
+    { opd: "DINAS PETERNAKAN DAN PERIKANAN", title: "Belanja barang untuk dijual/diserahkan kepada masyarakat (ayam petelur) P-APBD 2025", amount: "Rp 28.6 M", kodeRup: "", pdn: "Ya" },
   ],
   "Pengadaan Langsung": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Pengadaan Langsung", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
-  ],
-  "Tender": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Tender", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "BIAYA BAHAN HEMODIALISIS NON E KATALOG", amount: "Rp 19.0 M", kodeRup: "60548834", pdn: "Tidak" },
+    { opd: "DINAS PERHUBUNGAN", title: "Belanja Tagihan Listrik sub kegiatan rehabilitasi dan pemeliharaan perlengkapan jalan", amount: "Rp 13.8 M", kodeRup: "60555416", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "BIAYA BAHAN OBAT OBATAN NON E KATALOG", amount: "Rp 10.0 M", kodeRup: "60548153", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Belanja Bahan-Bahan Bakar dan Pelumas", amount: "Rp 6.1 M", kodeRup: "60398066", pdn: "Ya" },
+    { opd: "DINAS PERHUBUNGAN", title: "Belanja Rekening Penerangan Jalan Umum (Tagihan Listrik PJU) sub keg. rehabilitasi dan pemeliharaan perlengkapan jalan", amount: "Rp 6.0 M", kodeRup: "60555562", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Rehabilitasi Rumah Dinas Bupati Bojonegoro Jl. Mas Tumapel (P-APBD)", amount: "Rp 5.7 M", kodeRup: "61312678", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "Biaya Service dan Suku Cadang Alat Kedokteran RS Non E-Katalog", amount: "Rp 4.0 M", kodeRup: "60461952", pdn: "Ya" },
   ],
   "Dikecualikan": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Dikecualikan", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "BIAYA ATAS LAYANAN PIHAK KETIGA ( DARAH / PMI )", amount: "Rp 7.5 M", kodeRup: "61724521", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "Biaya Listrik", amount: "Rp 5.6 M", kodeRup: "59193806", pdn: "Ya" },
+    { opd: "RSUD KEPOHBARU", title: "Belanja Modal Tanah untuk Bangunan Tempat Kerja", amount: "Rp 3.0 M", kodeRup: "60787398", pdn: "Ya" },
+    { opd: "BAGIAN UMUM", title: "Belanja Tagihan Listrik", amount: "Rp 2.4 M", kodeRup: "55199223", pdn: "Ya" },
+    { opd: "RSUD KELAS B DR. R.SOSODORO DJATIKOESOEMO", title: "Biaya Air", amount: "Rp 2.3 M", kodeRup: "60613674", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Bahan Bakar Minyak (BBM) Sektor Industri dan Bungker", amount: "Rp 1.6 M", kodeRup: "59205922", pdn: "Ya" },
+    { opd: "RSUD KELAS C PADANGAN", title: "Biaya Langganan Listrik, air, telpon", amount: "Rp 1.6 M", kodeRup: "57723107", pdn: "Ya" },
+    { opd: "RSUD SUMBERREJO", title: "Belanja Jasa Langganan Listrik / Air / Telp / Internet", amount: "Rp 1.5 M", kodeRup: "62593043", pdn: "Ya" },
+    { opd: "DINAS KEPEMUDAAN DAN OLAHRAGA", title: "Belanja Tagihan Listrik", amount: "Rp 1.4 M", kodeRup: "54847583", pdn: "Ya" },
+    { opd: "RSUD SUMBERREJO", title: "Belanja Jasa Tenaga kesehatan", amount: "Rp 1.3 M", kodeRup: "60971359", pdn: "Ya" },
+    { opd: "BAGIAN UMUM", title: "Belanja Bahan-Bahan Bakar dan Pelumas", amount: "Rp 1.1 M", kodeRup: "55377888", pdn: "Ya" },
+    { opd: "RSUD KELAS C PADANGAN", title: "Biaya darah", amount: "Rp 1.1 M", kodeRup: "55235305", pdn: "Ya" },
+    { opd: "DINAS PERHUBUNGAN", title: "Belanja Tagihan Listrik (Sub Keg Penyediaan Jasa Komunikasi, Sumber Daya Air dan Listrik)", amount: "Rp 1.0 M", kodeRup: "55500784", pdn: "Ya" },
+    { opd: "RSUD SUMBERREJO", title: "Belanja Transfusi Darah", amount: "Rp 1.0 M", kodeRup: "58086908", pdn: "Ya" },
+    { opd: "RSUD SUMBERREJO", title: "Belanja Jasa Lainnya Penyedia Jasa Orang Perorangan Tenaga Ahli", amount: "Rp 850 Jt", kodeRup: "60970586", pdn: "Ya" },
+    { opd: "DINAS LINGKUNGAN HIDUP", title: "Belanja Tagihan Listrik", amount: "Rp 714 Jt", kodeRup: "58074933", pdn: "Ya" },
   ],
   "Seleksi": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Seleksi", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "DED Rehabilitasi Stadion Bojonegoro (P-APBD)", amount: "Rp 1.1 M", kodeRup: "60104955", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "DED Pembangunan Stadion Bojonegoro", amount: "Rp 1.1 M", kodeRup: "55197595", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Master Plan Rehabilitasi Stadion Bojonegoro (P-APBD)", amount: "Rp 1.1 M", kodeRup: "60104883", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Dokumen Lingkungan Rehabilitasi Stadion Bojonegoro (P-APBD)", amount: "Rp 1.0 M", kodeRup: "60105017", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "Dokumen Lingkungan Pembangunan Stadion Bojonegoro", amount: "Rp 1.0 M", kodeRup: "55197570", pdn: "Ya" },
+    { opd: "DINAS PERUMAHAN KAWASAN PERMUKIMAN DAN CIPTA KARYA", title: "MK Pembangunan Rumah Sakit Kepohbaru", amount: "Rp 1.0 M", kodeRup: "55197541", pdn: "Ya" },
   ],
   "Penunjukan Langsung": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Penunjukan Langsung", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+    { opd: "DINAS KETAHANAN PANGAN DAN PERTANIAN", title: "Belanja Pemeliharaan Alat Angkutan-Alat Angkutan Darat Bermotor-Kendaraan Bermotor Penumpang", amount: "Rp 264 Jt", kodeRup: "54653960", pdn: "Ya" },
+    { opd: "DINAS KETAHANAN PANGAN DAN PERTANIAN", title: "Pemeliharaan/Rehabilitasi Gedung Kantor dan Bangunan Lainnya", amount: "Rp 251 Jt", kodeRup: "54654343", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Perencanaan Pembangunan Pelindung Tebing Sungai/Kali Ds. Sarirejo Kec. Balen", amount: "Rp 240 Jt", kodeRup: "59154526", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Belanja Jasa Konsultansi Core Team Flyover *", amount: "Rp 210 Jt", kodeRup: "56798363", pdn: "Ya" },
+    { opd: "DINAS KETAHANAN PANGAN DAN PERTANIAN", title: "Beban Jasa Tenaga Keamanan", amount: "Rp 134 Jt", kodeRup: "54653750", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM BINA MARGA DAN PENATAAN RUANG", title: "Biaya beracara di Pengadilan ruas Napis - Margomulyo (Watujago) (Kegiatan 1)", amount: "Rp 100 Jt", kodeRup: "60698272", pdn: "Ya" },
+    { opd: "DINAS KETAHANAN PANGAN DAN PERTANIAN", title: "Belanja Jasa Konsultansi Berorientasi Layanan-Jasa Studi Penelitian dan Bantuan Teknik", amount: "Rp 70 Jt", kodeRup: "54653752", pdn: "Ya" },
+    { opd: "KELURAHAN MOJOKAMPUNG", title: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Tempat Kerja Lainnya", amount: "Rp 56 Jt", kodeRup: "61270705", pdn: "Ya" },
+    { opd: "KELURAHAN MOJOKAMPUNG", title: "Belanja Modal Peralatan Studio Audio", amount: "Rp 54 Jt", kodeRup: "61271430", pdn: "Ya" },
   ],
   "Tender Cepat": [
-    { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Tender Cepat", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
+    { opd: "DINAS PEKERJAAN UMUM SUMBER DAYA AIR", title: "Pekerjaan Peningkatan Sarana dan Prasarana Penunjang Rumah Pompa dan Pintu Pengendali Banjir Desa Lebaksari Kec. Baureno (Penyelesaian Pekerjaan Tahun 2024)", amount: "Rp 2.1 M", kodeRup: "60429777", pdn: "Ya" },
   ],
   "Lainnya": [
     { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy 2025 - Lainnya", amount: "Rp 0", kodeRup: "00000000", pdn: "Tidak" },
@@ -240,9 +296,9 @@ const DUMMY_REALISASI_PAKET_BY_METODE_2025: Record<string, PaketItem[]> = {
   "Tender": [
     { opd: "CONTOH OPD - 0000000000", title: "Contoh Data Dummy Realisasi 2025 - Tender", amount: "Rp 0", kodeRup: "00000000", pdn: "Ya" },
   ],
-  "E-Purchasing": DUMMY_PAKET_BY_METODE_2025["E-Purchasing"],
-  "Pengadaan Langsung": DUMMY_PAKET_BY_METODE_2025["Pengadaan Langsung"],
-  "Seleksi": DUMMY_PAKET_BY_METODE_2025["Seleksi"],
+  "E-Purchasing": PAKET_BY_METODE_2025["E-Purchasing"],
+  "Pengadaan Langsung": PAKET_BY_METODE_2025["Pengadaan Langsung"],
+  "Seleksi": PAKET_BY_METODE_2025["Seleksi"],
 };
 
 const DATA_2025: YearData = {
@@ -275,7 +331,7 @@ const DATA_2025: YearData = {
       { label: "BLUD", amount: "Rp 295.1 M", color: "#2ECC71", bg: "#D5F5E3" },
     ],
     opdData: OPD_DATA_2025,
-    paketByMetode: DUMMY_PAKET_BY_METODE_2025, // belum ada data detail per-paket 2025, masih dummy
+    paketByMetode: PAKET_BY_METODE_2025,
   },
   realisasi: {
     totalNilai: "Rp 0",

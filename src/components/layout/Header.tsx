@@ -1,80 +1,116 @@
-import { Lock, Moon, Sun, User } from "lucide-react";
-import { getGreeting, getGreetingColor, getGreetingIcon, getHeaderStyle, getTitleColor } from "../../utils/greeting";
+import { Lock, Moon, User, Home, ChevronRight, LayoutGrid, Menu } from "lucide-react";
+import { getThemeAccentColor } from "../../utils/greeting";
+import type { Page } from "../../types";
 
-const BOJONEGORO_LOGO_SRC = "https://upload.wikimedia.org/wikipedia/commons/1/18/Logo_Kabupaten_Bojonegoro.png";
+export const DESKTOP_TOPBAR_HEIGHT = 64;
+
+const PAGE_LABELS: Partial<Record<Page, string>> = {
+  home: "Beranda",
+  realisasi: "Realisasi",
+  "realisasi-list": "Realisasi",
+  "opd-full": "Realisasi",
+  pendapatan: "Pendapatan",
+  pengadaan: "Pengadaan",
+  sentimen: "Sentimen",
+  "isu-strategis": "Isu Strategis",
+  pegawai: "Pegawai",
+  "employee-detail": "Pegawai",
+};
+
+// Pill "Dashboard" - abu-abu netral, tidak berubah
+function getDashboardPillStyle(darkMode: boolean) {
+  return {
+    color: darkMode ? "#D1D5DB" : "#6B7280",
+    background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.04)",
+    borderColor: darkMode ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)",
+  };
+}
+
+// Pill label halaman - warna ikut tema waktu, background putih supaya tetap jelas
+function getPageBadgeStyle(darkMode: boolean) {
+  const color = getThemeAccentColor(darkMode);
+  return {
+    color,
+    background: darkMode ? "rgba(31,41,55,0.6)" : "#FFFFFF",
+    borderColor: darkMode ? "rgba(255,255,255,0.15)" : `${color}59`, // ~35% opacity
+  };
+}
 
 export function Header({
-  darkMode, setDarkMode, onLock, onProfile, onHamburger,
+  page,
+  darkMode, setDarkMode, onLock, onProfile,
+  sidebarCollapsed, onOpenSidebar, isDesktop,
 }: {
+  page: Page;
   darkMode: boolean;
   setDarkMode: (v: boolean) => void;
   onLock: () => void;
   onProfile: () => void;
-  onHamburger: () => void;
+  sidebarCollapsed: boolean;
+  onOpenSidebar: () => void;
+  isDesktop: boolean;
 }) {
-  const greetingIcon = getGreetingIcon();
+  const currentLabel = PAGE_LABELS[page] ?? "Beranda";
+  const dashboardPillStyle = getDashboardPillStyle(darkMode);
+  const pageBadgeStyle = getPageBadgeStyle(darkMode);
+
+  // Hamburger tampil di mobile selalu (sidebar = drawer), di desktop hanya saat sidebar tertutup
+  const showHamburger = !isDesktop || sidebarCollapsed;
+
+  const actionButtons = [
+    { icon: <Lock className="w-4 h-4" />, fn: onLock, label: "Kunci" },
+    { icon: <Moon className="w-4 h-4" />, fn: () => setDarkMode(!darkMode), label: "Mode gelap" },
+    { icon: <User className="w-4 h-4" />, fn: onProfile, label: "Profil" },
+  ];
 
   return (
-    <div className="sticky top-0 z-30 overflow-hidden" style={getHeaderStyle(darkMode)}>
-      <div className="absolute -top-6 -right-6 w-28 h-28 opacity-10 pointer-events-none">
-        <svg viewBox="0 0 100 100" fill="none">
-          <circle cx="80" cy="20" r="70" stroke="#8B5CF6" strokeWidth="1.5" />
-          <circle cx="80" cy="20" r="50" stroke="#8B5CF6" strokeWidth="1.5" />
-          <circle cx="80" cy="20" r="30" stroke="#8B5CF6" strokeWidth="1.5" />
-        </svg>
-      </div>
-      <div className="absolute -bottom-4 -left-4 w-20 h-20 opacity-10 pointer-events-none">
-        <svg viewBox="0 0 80 80" fill="none">
-          <path d="M0 80 Q20 40 40 20 Q60 0 80 0" stroke="#8B5CF6" strokeWidth="1.5" />
-          <path d="M0 60 Q20 30 40 10" stroke="#8B5CF6" strokeWidth="1.5" />
-        </svg>
+    <div
+      className="fixed top-0 right-0 z-30 flex items-center justify-between px-4 lg:px-6"
+      style={{
+        left: isDesktop ? (sidebarCollapsed ? 0 : "var(--sidebar-w, 256px)") : 0,
+        height: DESKTOP_TOPBAR_HEIGHT,
+      }}
+    >
+      <div className="flex items-center gap-1.5 text-sm min-w-0">
+        {showHamburger && (
+          <button
+            onClick={onOpenSidebar}
+            aria-label="Buka sidebar"
+            className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm border flex-shrink-0 mr-1.5 ${darkMode ? "bg-gray-700 border-gray-600 text-gray-300" : "bg-white/90 border-gray-200 text-gray-600"
+              }`}
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        )}
+        <span
+          className="hidden sm:inline-flex items-center gap-1.5 font-medium rounded-full px-3 py-1 border flex-shrink-0"
+          style={dashboardPillStyle}
+        >
+          <Home className="w-3.5 h-3.5" />
+          Dashboard
+        </span>
+        <ChevronRight className="hidden sm:block w-3.5 h-3.5 flex-shrink-0" style={{ color: darkMode ? "#6B7280" : "#9CA3AF" }} />
+        <span
+          className="inline-flex items-center gap-1.5 font-semibold rounded-full px-3 py-1 border truncate"
+          style={pageBadgeStyle}
+        >
+          <LayoutGrid className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="truncate">{currentLabel}</span>
+        </span>
       </div>
 
-      <div className="relative px-4 pt-3 pb-2 flex items-center justify-between lg:px-8 lg:pt-4 lg:pb-3">
-        <div className="flex items-center gap-2.5">
-          <img
-            src={BOJONEGORO_LOGO_SRC}
-            alt="Logo Pemkab Bojonegoro"
-            className="w-7 h-8 lg:w-9 lg:h-10 object-contain"
-          />
-          <div>
-            <div
-              className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5"
-              style={{ background: darkMode ? "rgba(243,156,18,0.15)" : "rgba(255,255,255,0.6)" }}
-            >
-              {greetingIcon === "sun" ? (
-                <Sun className="w-2.5 h-2.5" style={{ color: getGreetingColor(darkMode) }} />
-              ) : (
-                <Moon className="w-2.5 h-2.5" style={{ color: getGreetingColor(darkMode) }} />
-              )}
-              <p className="text-[10px] font-semibold lg:text-[11px]" style={{ color: getGreetingColor(darkMode) }}>{getGreeting()}</p>
-            </div>
-            <h1
-              className="font-['Plus_Jakarta_Sans',sans-serif] text-[13px] font-bold leading-tight lg:text-lg mt-0.5"
-              style={{ color: getTitleColor(darkMode) }}
-            >
-              Dashboard Kabupaten Bojonegoro
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {[
-            { icon: <Lock className="w-4 h-4" />, fn: onLock, label: "Kunci" },
-            { icon: <Moon className="w-4 h-4" />, fn: () => setDarkMode(!darkMode), label: "Mode gelap" },
-            { icon: <User className="w-4 h-4" />, fn: onProfile, label: "Profil" },
-          ].map((btn, i) => (
-            <button
-              key={i}
-              onClick={btn.fn}
-              aria-label={btn.label}
-              className={`w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center shadow-sm border ${darkMode ? "bg-gray-700 border-gray-600 text-gray-300" : "bg-white/90 border-white/60 text-gray-600"
-                }`}
-            >
-              {btn.icon}
-            </button>
-          ))}
-        </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {actionButtons.map((btn, i) => (
+          <button
+            key={i}
+            onClick={btn.fn}
+            aria-label={btn.label}
+            className={`w-9 h-9 rounded-full flex items-center justify-center shadow-sm border ${darkMode ? "bg-gray-700 border-gray-600 text-gray-300" : "bg-white/90 border-gray-200 text-gray-600"
+              }`}
+          >
+            {btn.icon}
+          </button>
+        ))}
       </div>
     </div>
   );

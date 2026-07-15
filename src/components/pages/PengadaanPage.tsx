@@ -670,7 +670,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
+          <div className="space-y-5 lg:space-y-6">
             <div className={`${card} rounded-2xl p-4 shadow-sm`}>
               <h2 className={`text-sm font-bold ${txt} mb-4`}><ChevronRight className="w-4 h-4 text-[#1F9EB0] inline -mt-0.5" /> Rincian Kategori</h2>
               <p className={`text-[11px] ${sub} uppercase font-bold mb-2 tracking-wide`}>Metode Pengadaan</p>
@@ -760,7 +760,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
+         <div className="space-y-5 lg:space-y-6">
             <div className="space-y-5">
               <div className={`${card} rounded-2xl p-4 shadow-sm`}>
                 <h2 className={`text-sm font-bold ${txt} mb-4`}><ChevronRight className="w-4 h-4 text-[#2ECC71] inline -mt-0.5" /> Rincian Kategori</h2>

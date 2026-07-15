@@ -130,80 +130,76 @@ export function HomePage({
 
       <ComparisonChartCard darkMode={darkMode} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-6 animate-fade-in">
-        <div className="lg:col-span-2 space-y-4 lg:space-y-6">
-          <div className={`${card} rounded-2xl p-4 shadow-sm`}>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className={`text-base font-bold ${txt}`}>Menu Cepat</h2>
-              <span className={`text-[12px] ${sub}`}>Akses cepat ke semua menu</span>
-            </div>
-            <div className="grid grid-cols-4 gap-3 lg:gap-4">
-              {MENU_ITEMS.map((item, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (item.page) {
-                      setPage(item.page);
-                      return;
-                    }
-                    onOpenAllMenus();
-                  }}
-                  className="flex flex-col items-center gap-1.5 transition-transform hover:scale-105 duration-200"
-                >
-                  <div className={`w-12 h-12 rounded-2xl ${item.bg} ${item.fg} flex items-center justify-center`}>{item.icon}</div>
-                  <span className={`text-[11px] ${sub} text-center leading-tight font-medium`}>{item.label}</span>
-                </button>
-              ))}
-            </div>
+      <div className="space-y-4 lg:space-y-6 animate-fade-in">
+        <div className={`${card} rounded-2xl p-4 shadow-sm`}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-base font-bold ${txt}`}>Menu Cepat</h2>
+            <span className={`text-[12px] ${sub}`}>Akses cepat ke semua menu</span>
           </div>
-
-          <div className={`${card} rounded-2xl p-4 shadow-sm`}>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className={`text-base font-bold ${txt}`}>Realisasi Terkini</h2>
-              <button onClick={() => setPage("realisasi-list")} className="text-[13px] text-[#1F9EB0] flex items-center gap-0.5 font-medium">
-                Selengkapnya <ChevronRight className="w-3 h-3" />
+          <div className="grid grid-cols-4 gap-3 lg:gap-4">
+            {MENU_ITEMS.map((item, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  if (item.page) {
+                    setPage(item.page);
+                    return;
+                  }
+                  onOpenAllMenus();
+                }}
+                className="flex flex-col items-center gap-1.5 transition-transform hover:scale-105 duration-200"
+              >
+                <div className={`w-12 h-12 rounded-2xl ${item.bg} ${item.fg} flex items-center justify-center`}>{item.icon}</div>
+                <span className={`text-[11px] ${sub} text-center leading-tight font-medium`}>{item.label}</span>
               </button>
-            </div>
-            <div className="space-y-3">
-              {TRANSACTIONS.slice(0, 4).map((item, i) => (
-                <div key={i} className={`flex items-start gap-3 pb-3 border-b ${sep} last:border-0 last:pb-0`}>
-                  <div className="w-8 h-8 bg-[#CCEEF2] rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Building2 className="w-4 h-4 text-[#1F9EB0]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-[13px] font-bold ${txt}`}>{item.kec}</p>
-                    <p className={`text-[12px] ${sub} leading-tight mt-0.5 line-clamp-2`}>{item.cat}</p>
-                    <p className={`text-[11px] ${darkMode ? "text-gray-500" : "text-gray-400"} mt-0.5`}>{item.date}</p>
-                  </div>
-                  <span className="text-[13px] font-bold text-[#1F9EB0] flex-shrink-0 pt-0.5">{item.amount}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <div className={`${card} rounded-2xl p-4 shadow-sm h-full`}>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className={`text-base font-bold ${txt}`}>Komentar Instagram Terbaru</h2>
-              <button onClick={() => setPage("sentimen")} className="text-[13px] text-[#1F9EB0] flex items-center gap-0.5 font-medium">
-                Selengkapnya <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="space-y-3">
-              {COMMENTS_ALL.map((item, i) => (
-                <div key={i} className={`flex items-start gap-3 pb-3 border-b ${sep} last:border-0 last:pb-0`}>
-                  <div className={`w-8 h-8 ${item.color} rounded-full flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-white text-xs font-bold">{item.user[0].toUpperCase()}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-[13px] font-bold ${txt}`}>{item.user}</p>
-                    <p className={`text-[12px] ${sub} mt-0.5 line-clamp-2`}>{item.comment}</p>
-                  </div>
-                  <div className="flex-shrink-0 pt-0.5"><SentimentBadge sentiment={item.sentiment} /></div>
+        <div className={`${card} rounded-2xl p-4 shadow-sm`}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-base font-bold ${txt}`}>Realisasi Terkini</h2>
+            <button onClick={() => setPage("realisasi-list")} className="text-[13px] text-[#1F9EB0] flex items-center gap-0.5 font-medium">
+              Selengkapnya <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="space-y-3">
+            {TRANSACTIONS.slice(0, 4).map((item, i) => (
+              <div key={i} className={`flex items-start gap-3 pb-3 border-b ${sep} last:border-0 last:pb-0`}>
+                <div className="w-8 h-8 bg-[#CCEEF2] rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Building2 className="w-4 h-4 text-[#1F9EB0]" />
                 </div>
-              ))}
-            </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-[13px] font-bold ${txt}`}>{item.kec}</p>
+                  <p className={`text-[12px] ${sub} leading-tight mt-0.5 line-clamp-2`}>{item.cat}</p>
+                  <p className={`text-[11px] ${darkMode ? "text-gray-500" : "text-gray-400"} mt-0.5`}>{item.date}</p>
+                </div>
+                <span className="text-[13px] font-bold text-[#1F9EB0] flex-shrink-0 pt-0.5">{item.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={`${card} rounded-2xl p-4 shadow-sm`}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-base font-bold ${txt}`}>Komentar Instagram Terbaru</h2>
+            <button onClick={() => setPage("sentimen")} className="text-[13px] text-[#1F9EB0] flex items-center gap-0.5 font-medium">
+              Selengkapnya <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="space-y-3">
+            {COMMENTS_ALL.map((item, i) => (
+              <div key={i} className={`flex items-start gap-3 pb-3 border-b ${sep} last:border-0 last:pb-0`}>
+                <div className={`w-8 h-8 ${item.color} rounded-full flex items-center justify-center flex-shrink-0`}>
+                  <span className="text-white text-xs font-bold">{item.user[0].toUpperCase()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-[13px] font-bold ${txt}`}>{item.user}</p>
+                  <p className={`text-[12px] ${sub} mt-0.5 line-clamp-2`}>{item.comment}</p>
+                </div>
+                <div className="flex-shrink-0 pt-0.5"><SentimentBadge sentiment={item.sentiment} /></div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

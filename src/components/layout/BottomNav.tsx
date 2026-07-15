@@ -94,7 +94,7 @@ export function BottomNav({
     ? true : page === p;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-2.5 sm:px-6 sm:pb-3 lg:px-8 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-2.5 sm:px-6 sm:pb-3 pointer-events-none lg:hidden">
       <div
         className="mx-auto max-w-xl rounded-[24px] pointer-events-auto"
         style={{

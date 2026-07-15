@@ -130,7 +130,7 @@ export function IsuStrategisPage({ darkMode, setPage }: { darkMode: boolean; set
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
+      <div className="space-y-5 lg:space-y-6">
         <div className={`${card} rounded-2xl p-4 shadow-sm`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">

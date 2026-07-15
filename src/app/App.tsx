@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Page, ModalType, CommentItem, EmployeeItem } from "../types";
-import { Header as HeaderComponent } from "../components/layout/Header";
-import { BottomNav as BottomNavComponent } from "../components/layout/BottomNav";
+import { Header as HeaderComponent, DESKTOP_TOPBAR_HEIGHT } from "../components/layout/Header";
+import { Sidebar as SidebarComponent } from "../components/layout/Sidebar";
 import { PinModal as PinModalComponent } from "../components/modals/PinModal";
 import { LoginModal as LoginModalComponent } from "../components/modals/LoginModal";
 import { SemualMenuModal as SemualMenuModalComponent } from "../components/modals/SemualMenuModal";
@@ -27,13 +27,48 @@ export default function App() {
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeItem | null>(null);
   const [isPinVerified, setIsPinVerified] = useState(false);
 
+  const mobileHeaderRef = useRef<HTMLDivElement>(null);
+  const [mobileHeaderHeight, setMobileHeaderHeight] = useState(76);
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+
+    // Set kondisi awal: sidebar terbuka default di desktop, tertutup default di mobile
+    setIsDesktop(mq.matches);
+    setSidebarCollapsed(!mq.matches);
+
+    const update = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const el = mobileHeaderRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.height > 0) setMobileHeaderHeight(entry.contentRect.height);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const navigate = (p: Page) => {
     setPage(p);
     window.scrollTo(0, 0);
   };
 
+  const handleLogout = () => {
+    setIsPinVerified(false);
+    setModal("pin");
+  };
+
   return (
-    <div className="min-h-screen font-[Inter,sans-serif] relative overflow-x-clip" style={{ background: darkMode ? "#111827" : "#F0F2F7" }}>
+    <div className="min-h-screen font-[Inter,sans-serif] relative" style={{ background: darkMode ? "#111827" : "#F0F2F7" }}>
       {modal === "pin" && !isPinVerified && (
         <PinModalComponent
           onSuccess={() => {
@@ -56,21 +91,40 @@ export default function App() {
       )}
 
       {isPinVerified && (
-        <div className="w-full min-h-screen relative z-10 flex flex-col overflow-x-clip" style={{ background: darkMode ? "#1F2937" : "#F0F2F7" }}>
+        <div className="w-full min-h-screen relative z-10 flex flex-col" style={{ background: darkMode ? "#1F2937" : "#F0F2F7" }}>
           <BatikBackgroundWatermarkComponent opacity={darkMode ? 0.07 : 0.13} />
 
-          <HeaderComponent
+          <div ref={mobileHeaderRef} style={{ ["--sidebar-w" as string]: `${sidebarWidth}px` }}>
+            <HeaderComponent
+              page={page}
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              onLock={handleLogout}
+              onProfile={() => setModal("login")}
+              sidebarCollapsed={sidebarCollapsed}
+              onOpenSidebar={() => setSidebarCollapsed(false)}
+              isDesktop={isDesktop}
+            />
+          </div>
+
+          <SidebarComponent
+            page={page}
+            setPage={navigate}
             darkMode={darkMode}
-            setDarkMode={setDarkMode}
-            onLock={() => {
-              setIsPinVerified(false);
-              setModal("pin");
-            }}
-            onProfile={() => setModal("login")}
-            onHamburger={() => setModal("semua-menu")}
+            collapsed={sidebarCollapsed}
+            setCollapsed={setSidebarCollapsed}
+            onWidthChange={setSidebarWidth}
+            onLogout={handleLogout}
+            isDesktop={isDesktop}
           />
 
-          <main className="flex-1 pb-28 lg:pb-20 overflow-x-clip relative z-10">
+          <main
+            className="flex-1 min-w-0 pb-8 overflow-x-clip relative z-10"
+            style={{
+              paddingLeft: isDesktop ? sidebarWidth : 0,
+              paddingTop: isDesktop ? DESKTOP_TOPBAR_HEIGHT : mobileHeaderHeight,
+            }}
+          >
             {page === "home" && (
               <HomePageModule
                 setPage={navigate}
@@ -102,13 +156,6 @@ export default function App() {
             )}
             {page === "isu-strategis" && <IsuStrategisPageModule darkMode={darkMode} setPage={navigate} />}
           </main>
-
-          <BottomNavComponent
-            page={page}
-            setPage={navigate}
-            darkMode={darkMode}
-            onOpenAllMenus={() => setModal("semua-menu")}
-          />
         </div>
       )}
     </div>

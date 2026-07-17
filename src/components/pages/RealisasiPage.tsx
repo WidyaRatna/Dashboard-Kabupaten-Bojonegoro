@@ -45,7 +45,14 @@ export function RealisasiPage({ darkMode, setPage }: { darkMode: boolean; setPag
 
   return (
     <div className="px-4 py-4 space-y-5 lg:px-8 lg:py-6 lg:space-y-6">
-      <div className="rounded-2xl p-5 text-white relative overflow-hidden" style={{ background: darkMode ? "linear-gradient(135deg, #1E3A6B 0%, #17285A 100%)" : "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)" }}>
+      <div
+        className="rounded-2xl p-5 text-white relative overflow-hidden"
+        style={{
+          background: darkMode
+            ? "linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.18) 100%), #1E3A6B"
+            : "linear-gradient(160deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.10) 100%), #2563EB",
+        }}
+      >
         <div className="absolute top-0 right-0 w-32 h-32 opacity-10"><svg viewBox="0 0 120 120" fill="white"><circle cx="100" cy="20" r="80" /></svg></div>
         <div className="relative">
           <div className="flex items-start justify-between mb-1">
@@ -193,7 +200,7 @@ export function RealisasiPage({ darkMode, setPage }: { darkMode: boolean; setPag
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
+      <div className="grid grid-cols-1 gap-5 lg:gap-6">
         <div className={`${card} rounded-2xl p-4 shadow-sm`}>
           <div className="flex items-center justify-between mb-4">
             <h2 className={`text-base font-bold ${txt}`}>Top 5 OPD Tertinggi</h2>

@@ -2,7 +2,7 @@ import { Home as HomeIcon, BarChart2, DollarSign, MessageCircle, Building2, Aler
 import { useEffect } from "react";
 import type { Page } from "../../types";
 import type { ReactNode } from "react";
-import { getGreeting, getGreetingColor, getGreetingIcon, getHeaderStyle, getTitleColor, getThemeAccentColor } from "../../utils/greeting";
+import { getGreeting, getGreetingColor, getGreetingIcon, getHeaderStyle, getTitleColor, getThemeAccentColor, isDarkBackground } from "../../utils/greeting";
 
 const BOJONEGORO_LOGO_SRC = "https://upload.wikimedia.org/wikipedia/commons/1/18/Logo_Kabupaten_Bojonegoro.png";
 
@@ -42,6 +42,7 @@ export function Sidebar({
   const greetingIcon = getGreetingIcon();
   const accentColor = getThemeAccentColor(darkMode);
   const userInitial = userName.trim().charAt(0).toUpperCase();
+  const surfaceIsDark = isDarkBackground(darkMode);
 
   // Lebar dipakai App.tsx untuk padding konten desktop (mobile pakai overlay, tidak butuh push)
   useEffect(() => {
@@ -59,29 +60,35 @@ export function Sidebar({
     if (!isDesktop) setCollapsed(true);
   };
 
-  // Sidebar tidak render apa-apa saat collapsed (tombol buka dipindah ke Header)
-  if (collapsed) return null;
-
   return (
     <>
       {/* Backdrop gelap khusus mobile, tap untuk menutup drawer */}
       <div
-        className="lg:hidden fixed inset-0 z-40 bg-black/50"
+        className={`lg:hidden fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${
+          collapsed ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
         onClick={() => setCollapsed(true)}
         aria-hidden="true"
       />
 
       <div
-        className="fixed top-0 left-0 h-screen z-50 flex flex-col w-64 transition-all duration-200"
+        className={`fixed top-0 left-0 h-screen z-50 flex flex-col w-64 transition-all duration-300 ease-out ${
+          collapsed
+            ? "opacity-0 scale-95 -translate-y-3 pointer-events-none"
+            : "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+        }`}
         style={{
           ...getHeaderStyle(darkMode),
-          borderRight: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.06)",
+          borderRight: surfaceIsDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.06)",
+          transformOrigin: "top left",
         }}
+        aria-hidden={collapsed}
+        inert={collapsed ? true : undefined}
       >
         {/* Logo, salam, dan judul dashboard */}
         <div
           className="px-4 py-4"
-          style={{ borderBottom: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.06)" }}
+          style={{ borderBottom: surfaceIsDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.06)" }}
         >
           <div className="flex items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5">
@@ -109,8 +116,8 @@ export function Sidebar({
               aria-label="Tutup sidebar"
               className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
               style={{
-                color: darkMode ? "#D1D5DB" : "#6B7280",
-                background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.04)",
+                color: surfaceIsDark ? "#D1D5DB" : "#6B7280",
+                background: surfaceIsDark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.04)",
               }}
             >
               <X className="w-4 h-4" />
@@ -136,11 +143,11 @@ export function Sidebar({
                 className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 transition-colors"
                 style={{
                   background: isActive
-                    ? darkMode
+                    ? surfaceIsDark
                       ? "rgba(31,158,176,0.2)"
                       : "rgba(31,158,176,0.14)"
                     : "transparent",
-                  color: isActive ? "#1F9EB0" : darkMode ? "#E5E7EB" : "#374151",
+                  color: isActive ? "#1F9EB0" : surfaceIsDark ? "#E5E7EB" : "#374151",
                 }}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
@@ -153,7 +160,7 @@ export function Sidebar({
         {/* Info pengguna yang sedang login + tombol logout */}
         <div
           className="px-3 py-3 space-y-1"
-          style={{ borderTop: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.06)" }}
+          style={{ borderTop: surfaceIsDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.06)" }}
         >
           <div className="flex items-center gap-2.5 rounded-xl px-2 py-2">
             <div
@@ -165,13 +172,13 @@ export function Sidebar({
             <div className="min-w-0">
               <p
                 className="text-sm font-semibold truncate"
-                style={{ color: darkMode ? "#F3F4F6" : "#1F2937" }}
+                style={{ color: surfaceIsDark ? "#F3F4F6" : "#1F2937" }}
               >
                 {userName}
               </p>
               <p
                 className="text-[11px] truncate"
-                style={{ color: darkMode ? "#9CA3AF" : "#6B7280" }}
+                style={{ color: surfaceIsDark ? "#9CA3AF" : "#6B7280" }}
               >
                 {userRole}
               </p>

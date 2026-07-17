@@ -64,7 +64,7 @@ function hexToRgba(hex: string, alpha: number) {
 const PERIOD_THEMES: Record<PeriodKey, {
   greeting: string;
   baseColor: string; // warna dominan gradient sidebar untuk periode ini
-  gradient: string;
+  gradient: string; // bisa berupa CSS gradient string ATAU hex warna solid
   greetingColor: string;
 }> = {
   pagi: {
@@ -87,9 +87,9 @@ const PERIOD_THEMES: Record<PeriodKey, {
   },
   malam: {
     greeting: "Selamat Malam",
-    baseColor: "#3949AB",
-    gradient: "linear-gradient(160deg, #1A237E 0%, #283593 60%, #3949AB 100%)",
-    greetingColor: "#FFFFFF",
+    baseColor: "#1F9EB0",
+    gradient: "linear-gradient(160deg, #E0F7FA 0%, #FFFFFF 35%, #E0F7FA 65%, #FFFFFF 100%)",
+    greetingColor: "#0F7A8A",
   },
   dark: {
     greeting: "",
@@ -108,6 +108,7 @@ function getPeriodKey(): Exclude<PeriodKey, "dark"> {
 }
 
 export function getGreeting() {
+  // teks sapaan tetap ikut jam asli (Pagi/Siang/Sore/Malam)
   return PERIOD_THEMES[getPeriodKey()].greeting;
 }
 
@@ -125,11 +126,18 @@ export function getHeaderStyle(darkMode: boolean) {
     backgroundRepeat: "no-repeat" as const,
   };
 
-  const theme = darkMode ? PERIOD_THEMES.dark : PERIOD_THEMES[getPeriodKey()];
-  return { ...base, backgroundImage: theme.gradient };
+  // Background sidebar/header dikunci putih bersih (dark mode tetap gelap netral),
+  // tidak lagi mengikuti periode waktu maupun gradasi warna tema.
+  const solid = darkMode ? "#111827" : "#FFFFFF";
+  return {
+    ...base,
+    backgroundImage: "none",
+    backgroundColor: solid,
+  };
 }
 
 export function getGreetingColor(darkMode: boolean) {
+  // warna teks sapaan tetap ikut jam asli
   const theme = darkMode ? PERIOD_THEMES.dark : PERIOD_THEMES[getPeriodKey()];
   return theme.greetingColor;
 }
@@ -139,11 +147,10 @@ export function getTitleColor(darkMode: boolean) {
   return "#92400E";
 }
 
-// Warna badge diturunkan LANGSUNG dari baseColor gradient sidebar (bukan warna terpisah).
+// Warna badge dikunci teal, senada dengan warna menu aktif di sidebar (#1F9EB0),
+// tidak lagi mengikuti periode waktu.
 export function getThemeAccentColor(darkMode: boolean) {
-  const theme = darkMode ? PERIOD_THEMES.dark : PERIOD_THEMES[getPeriodKey()];
-  // lightness 38% supaya kontras cukup buat teks di atas pill terang
-  return deriveAccent(theme.baseColor, darkMode ? 68 : 38);
+  return darkMode ? "#5FD3E0" : "#1F9EB0";
 }
 
 export function getThemeAccentStyle(darkMode: boolean) {
@@ -154,4 +161,10 @@ export function getThemeAccentStyle(darkMode: boolean) {
     borderColor: hexToRgba(color, darkMode ? 0.5 : 0.45),
     boxShadow: darkMode ? "none" : "0 1px 2px rgba(0,0,0,0.04)",
   };
+}
+
+// Dipakai komponen (mis. Sidebar) buat nentuin apakah background saat ini gelap,
+// baik karena dark mode aktif ATAU karena periode "Malam" (gradientnya gelap).
+export function isDarkBackground(darkMode: boolean) {
+  return darkMode;
 }

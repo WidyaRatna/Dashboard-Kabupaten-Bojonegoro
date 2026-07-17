@@ -3,7 +3,6 @@ import { AlertCircle, Calendar, ChevronRight, Download, X } from "lucide-react";
 import { INFOGRAFIS_MINGGUAN, MONTH_OPTIONS } from "../../data/isuStrategis";
 import { sanitizeFileName } from "../../utils/fileHelpers";
 import type { Page } from "../../types";
-import { BackButton } from "../shared/BackButton";
 
 function InfografisImage({ src, fallbackSrc, alt, className, onClick }: { src: string; fallbackSrc: string; alt: string; className?: string; onClick?: () => void }) {
   const [activeSrc, setActiveSrc] = useState(src);
@@ -71,7 +70,7 @@ export function IsuStrategisPage({ darkMode, setPage }: { darkMode: boolean; set
   };
 
   return (
-    <div className="px-4 py-4 space-y-5 lg:px-8 lg:py-6 lg:space-y-6">
+    <div className="px-4 pt-2 pb-4 lg:px-8 lg:pt-3 lg:pb-6 space-y-5 lg:space-y-6">
       {previewImage && (
         <div className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
           <div className="relative w-full max-w-2xl rounded-[28px] bg-white/10 p-3 shadow-2xl ring-1 ring-white/10" onClick={(e) => e.stopPropagation()}>
@@ -92,9 +91,25 @@ export function IsuStrategisPage({ darkMode, setPage }: { darkMode: boolean; set
         </div>
       )}
 
-      <BackButton onClick={() => setPage("home")} darkMode={darkMode} />
-      <div className="flex items-center justify-between">
-        <h2 className={`text-base font-extrabold ${txt}`}>Infografis Mingguan</h2>
+      <div
+        className="w-full rounded-2xl px-4 py-3 shadow-lg text-white"
+        style={{ background: darkMode ? "linear-gradient(135deg, #14636E 0%, #0E4952 100%)" : "linear-gradient(135deg, #1F9EB0 0%, #17798A 100%)" }}
+      >
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] opacity-80">Infografis Mingguan</p>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          <div className="min-w-0">
+            <p className="text-lg font-extrabold truncate">10</p>
+            <p className="text-[11px] opacity-80 truncate">Isu Strategis</p>
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg font-extrabold truncate" title={selectedWeek.label}>{selectedWeek.label.split(" (")[0]}</p>
+            <p className="text-[11px] opacity-80 truncate">Minggu Aktif</p>
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg font-extrabold truncate">Mingguan</p>
+            <p className="text-[11px] opacity-80 truncate">Update</p>
+          </div>
+        </div>
       </div>
 
       <div className={`${card} rounded-2xl p-4 shadow-sm`}>
@@ -142,7 +157,7 @@ export function IsuStrategisPage({ darkMode, setPage }: { darkMode: boolean; set
             <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${darkMode ? "bg-[#7A5228] text-[#FBBF24]" : "bg-[#FDEBD0] text-[#E67E22]"}`}>Mingguan</span>
           </div>
           <div className={`rounded-2xl overflow-hidden border ${darkMode ? "border-gray-700" : "border-gray-100"}`}>
-            <div className="p-4" style={{ background: darkMode ? "linear-gradient(135deg, #1E3A6B 0%, #17285A 100%)" : "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)" }}>
+            <div className="p-4" style={{ background: darkMode ? "linear-gradient(135deg, #14636E 0%, #0E4952 100%)" : "linear-gradient(135deg, #1F9EB0 0%, #17798A 100%)" }}>
               <p className="text-white text-[14px] font-bold opacity-90">Kabupaten Bojonegoro</p>
               <p className="text-white/70 text-[12px]">{weeklyInfografis.title} — {selectedWeek.label}</p>
             </div>

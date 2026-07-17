@@ -56,7 +56,7 @@ export function SentimenPage({
       </div>
       <p className={`text-[12px] ${sub}`}>Data: 24 Mei 2026 — 24 Jun 2026</p>
 
-      <div className="rounded-2xl p-5 text-white relative overflow-hidden" style={{ background: darkMode ? "linear-gradient(135deg, #3B2266 0%, #2A1B4D 100%)" : "linear-gradient(135deg, #7C3AED 0%, #9B5DE0 100%)" }}>
+      <div className="rounded-2xl p-5 text-white relative overflow-hidden" style={{ background: darkMode ? "linear-gradient(135deg, #14636E 0%, #0E4952 100%)" : "linear-gradient(135deg, #1D4ED8 0%, #1F9EB0 100%)" }}>
         <div className="absolute top-0 right-0 w-32 h-32 opacity-10"><svg viewBox="0 0 120 120" fill="white"><circle cx="100" cy="20" r="80" /></svg></div>
         <div className="relative">
           <div className="flex items-start justify-between mb-2">

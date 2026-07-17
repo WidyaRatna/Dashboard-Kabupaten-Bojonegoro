@@ -658,7 +658,7 @@ export function PengadaanPage({ darkMode }: { darkMode: boolean }) {
 
       {activeTab === "Rencana (RUP)" ? (
         <>
-          <div className="rounded-2xl p-5 text-white relative overflow-hidden" style={{ background: darkMode ? "linear-gradient(135deg, #1E3A6B 0%, #17285A 100%)" : "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)" }}>
+          <div className="rounded-2xl p-5 text-white relative overflow-hidden" style={{ background: darkMode ? "linear-gradient(135deg, #14636E 0%, #0E4952 100%)" : "linear-gradient(135deg, #1D4ED8 0%, #1F9EB0 100%)" }}>
             <div className="absolute top-0 right-0 w-32 h-32 opacity-10"><svg viewBox="0 0 120 120" fill="white"><circle cx="100" cy="20" r="80" /></svg></div>
             <div className="relative">
               <p className="text-[12px] font-bold uppercase tracking-wider opacity-80 mb-2">Total Pagu Pengadaan</p>
